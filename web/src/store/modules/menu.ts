@@ -1,15 +1,15 @@
+import { getMenuListApi } from "@/api/system/menu/menu";
 import { defineStore } from "pinia";
-import { getMenuListApi } from '@/api/system/menu/menu'
-export const useMenuStore=defineStore(    'menuState',{
 
+export const useMenuStore = defineStore('menuState',{
     state:()=>({
-        register:false, // 路由是否注册
-        routers:[],     // 路由数据
+        register:false, //路由是否注册
+        routers:[],     //路由列表
     }),
     getters:{},
-    actions:{
+    actions:{ 
         // 生成路由
-        generateRouter: async function () {
+        generateRouter: async function() {
             const {data}=await getMenuListApi()
             this.routers=data.result
             return data.result

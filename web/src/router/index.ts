@@ -1,24 +1,105 @@
 import Nprogress from '@/config/nprogress'
-
 // 1.导入vue-router模块
-import {createRouter,createWebHistory} from 'vue-router'
+import {createRouter,createWebHashHistory} from 'vue-router'
+import {useMenuStore} from '@/store/modules/menu'
+// 定义路由和组件映射关系
+const modules=import.meta.glob("@/views/**/**.vue")
+
 // 2.定义一些路由地址，每个都需要映射到一个组件
 const routes=[{
     path:'/',
     name:'Login',
     meta:{title:'后台管理系统-登陆'},
     component:()=> import ('../views/Login.vue')
-}]
+},
+{
+    path: '/index',
+    name:'Index',
+    component:()=>import('@/views/system/layout/Index.vue'),
+    redirect:'/home',
+    children:[
+        {
+            path:'/home',
+            name:'Home',
+            meta:{title:'首页',icon:'House'},
+            component: ()=> import('@/views/system/home/Index.vue')
+        }
+    ]
+}
+]
 // 3.创建路由实例并传递'routes'配置
 const router=createRouter({
-    history:createWebHistory(),
+    history:createWebHashHistory(),
     routes:routes
 })
+// 防止首次或者刷新界面路由失效
+let registerRouteFresh=true
 // 路由拦截守卫
 router.beforeEach(async(to,form,next)=>{
     // 1.Nprogress开始
     Nprogress.start()
-    next()
+    // 获取菜单信息
+    const menuStore=useMenuStore()
+    // 如果routers为空，获取菜单数据
+    if(menuStore.routers.length==0){
+        await menuStore.generateRouter()
+    }
+    // 生成动态路由 start
+    menuStore.routers.forEach((item:any)=>{
+        // 组装动态路由地址 start
+        let myRoute:any={}
+        myRoute={
+            path:item.path,
+            name:item.name,
+            meta:{
+                icon:item.web_icon,
+                title:item.name
+            },
+            component:()=>import('@/views/system/layout/Index.vue')
+        }
+        myRoute.children=[]
+        if(item.level===1 && item.component_name.length!=0){
+            myRoute.children.push({
+                path:item.path,
+                name:item.name,
+                meta:{
+                    icon:item.web_icon,
+                    title:item.name
+                },
+                component:modules[`@/views/${item.component_name}`]
+            })
+        }
+        if(item.sub_menus){
+            item.sub_menus.forEach((subItem:any)=>{
+                if(subItem.path){
+                    myRoute.children.push({
+                         path:subItem.path,
+                         name:subItem.name,
+                         meta:{
+                            icon:subItem.web_icon,
+                            title:subItem.name
+                         },
+                         component:modules[`@/views/${subItem.component_name}`]
+                    })
+                }
+            })
+        }
+        routes.push(myRoute)
+        // 组装动态路由地址 end
+    })
+    if(registerRouteFresh){
+        // 添加动态路由
+        routes.forEach(item=>{
+            router.addRoute(item)
+        })
+        next({...to,replace:true})
+        registerRouteFresh=false
+    }else{
+        next()
+
+    }
+    // 生成动态路由 end
+    // next()
 })
 // 路由跳转结束
 router.afterEach(()=>{
