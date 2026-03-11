@@ -10,7 +10,7 @@ const routes=[{
     path:'/',
     name:'Login',
     meta:{title:'后台管理系统-登陆'},
-    component:()=> import ('../views/Login.vue')
+    component:()=> import ('../views/system/login/Login.vue')
 },
 {
     path: '/index',
