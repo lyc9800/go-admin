@@ -42,10 +42,14 @@
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
-import type { FormInstance, FormRules } from 'element-plus'
+import  type { FormInstance, FormRules } from 'element-plus'
 import { useRouter } from 'vue-router'
 import { UserFilled, GoodsFilled } from '@element-plus/icons-vue'
+import {ElNotification} from 'element-plus'
+import { loginApi } from '@/api/system/login/login'
+import { useUserStore } from '@/store/modules/user'
 
+const userStore = useUserStore()
 // 路由对象
 const router = useRouter()
 
@@ -68,7 +72,51 @@ const ruleForm = reactive({
   username: 'admin',
   password: '123456'
 })
-
+// 提交表单函数
+const submitForm=(formEl: FormInstance | undefined)=>{
+  loading.value = true
+  if (!formEl) return
+  formEl.validate(async (valid) => {
+    if (valid) {
+      // 登录成功
+      const {data} = await loginApi({...ruleForm})
+      if(data.code === 200){
+        // 设置token
+        userStore.setToken(data.token)
+        // 设置用户信息
+        userStore.setUserInfo(data.userInfo)
+        // 跳转到首页
+        setTimeout(()=>{
+          // window.location.href='/home'
+          router.push({path:'/home'})
+        },1500)
+        ElNotification({
+          title:'登陆成功',
+          message:'欢迎登陆后台管理系统',
+          type:'success',
+          duration: 3000
+        })
+      }else{
+        ElNotification({
+          title:'温馨提示',
+          message:data.msg,
+          type:'error',
+          duration: 3000
+        })
+      }
+    } else {
+      // 登录失败
+      ElNotification({
+        title:'温馨提示',
+        message:'还有必填项没有填写',
+        type:'error',
+        duration: 3000
+      })
+      return false  
+    }
+  })
+  loading.value = false
+}
 </script>
 
 <style scoped>

@@ -11,13 +11,11 @@
                 <!-- 顶部导航栏 start-->
                 <el-header><TopBar/></el-header>
                 <!-- 顶部导航栏 end-->
-
                 <!--主要内容 start-->
                 <el-main>
                     <router-view></router-view>
                 </el-main>
                 <!--主要内容 end-->
-
             </el-container>
         </el-container>
     </div>
@@ -38,6 +36,7 @@ import TopBar from '@/views/system/layout/header/TopBar.vue';
 }
 .el-main{
     background: #f3f3f3;
+    
 }
 .el-container{
     height: 100%;

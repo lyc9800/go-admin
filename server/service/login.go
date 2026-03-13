@@ -51,13 +51,14 @@ func LoginPassword(c *gin.Context) {
 		})
 		return
 	}
-	date := &LoginPasswordReply{
+	data := &LoginPasswordReply{
 		Token:        token,
 		RefreshToken: refreshToken,
 	}
 	c.JSON(http.StatusOK, gin.H{
-		"code": 200,
-		"msg":  "登陆成功",
-		"data": date,
+		"code":     200,
+		"msg":      "登陆成功",
+		"result":   data,
+		"userInfo": sysUser,
 	})
 }

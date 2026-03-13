@@ -1,6 +1,3 @@
-import { roleTypes } from "element-plus";
-import { ro, tr } from "element-plus/es/locales.mjs";
-import { set } from "nprogress";
 import { defineStore } from "pinia";
 
 export const useUserStore = defineStore("userStore", {

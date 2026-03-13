@@ -1,5 +1,5 @@
 <template>
-    <div>首台首页</div>
+    <div>后台首页</div>
 </template>
 <script setup lang="ts">
 

@@ -88,17 +88,25 @@ const isCollapse = computed(()=>settingStore.isCollapse)
     height: 100%;
     border: 0px;
     width: 240px; /* 菜单总宽度，可按需调整 */
-    background-color: white;
+    /* background-color: white; */
+    background: #f5f7fa;
     overflow: hidden;
     display: flex;
     flex-direction: column;
 }
 
 /* 选中菜单时候的颜色 */
-:deep(.el-menu-item.is-active) {
+/* :deep(.el-menu-item.is-active) {
     color: white;
     background: linear-gradient(to right, #1890ff, #36cfc9);
     font-weight: bold;
+} */
+ :deep(.el-menu-item.is-active) {
+    color: #333;  /* 文字颜色改为深色，在米黄背景上更清晰 */
+    background: linear-gradient(to right, #e6f7ff, #b3e5fc);
+    /* 从亮米黄色渐变到小麦色 */
+    font-weight: bold;
+    border-left: 3px solid #d4b483;  /* 添加左侧边框增加层次感 */
 }
 
 /* 菜单项间距优化 */

@@ -20,7 +20,7 @@
               <div style="display:flex;gap:16px;flex-direction: column;">
                 <div class="info-card">
                   <!-- 用户头像 start-->
-                   <img src="@/assets/user.jpg" alt="">
+                   <img src="@/assets/user.jpg">
                    <p>用户名：Admin</p>
                    <p>Email：111@qq.com</p>
                    <p>注册时间：2026-03-10</p>
@@ -38,11 +38,11 @@
       <!-- 登陆用户信息 end -->
       <!-- 退出系统 start -->
        <el-popconfirm confirm-button-text="确定" cancel-button-text="取消" :icon="SwitchButton"
-       icon-color="#30bcd7" title="确定要退出系统吗?">
+       icon-color="#30bcd7" title="确定要退出吗?" @confirm="exit">
         <template #reference>
-          <el-link :underline="false">
+          <el-link :underline="false"  class="logout-btn">
             <el-icon>
-              <SwitchButton />
+              <SwitchButton/>
             </el-icon>
           </el-link>
         </template>
@@ -60,6 +60,14 @@ import { SwitchButton } from '@element-plus/icons-vue'
 import CollapseIcon from './CollapseIcon.vue';
 import Hamburger from './Hamburger.vue';
 import TabsView from '@/views/system/layout/tags/Index.vue';
+// 退出系统
+const exit =()=>{
+  // 清除用户登陆信息
+  window.localStorage.removeItem("userStore")
+  // 清除用户对应的菜单数据
+  window.localStorage.removeItem("menuState")
+  window.location.href='/'
+}
 </script>
 
 <style  scoped>
@@ -76,7 +84,7 @@ import TabsView from '@/views/system/layout/tags/Index.vue';
   float: right;
 }
 .linkBox .el-link{
-  margin-right: 25%;
+  margin-right: 25px;
   color: #8c8c8c;
 }
 .linkBox .el-link:hover{
@@ -91,7 +99,6 @@ import TabsView from '@/views/system/layout/tags/Index.vue';
   margin: 0px 15px 0px 0px;
   border-radius: 50px;
   float: left;
-
 }
 .info-card p{
   margin-right: 0px;
@@ -115,5 +122,6 @@ import TabsView from '@/views/system/layout/tags/Index.vue';
 :deep(.main-tabs-view) {
   background: white !important;
 }
+
 </style>
 
