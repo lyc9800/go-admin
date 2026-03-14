@@ -14,5 +14,8 @@ func App() *gin.Engine {
 	r.Use(middleware.Cors())
 	// 根据用户名和密码登录的路由
 	r.POST("/login/password", service.LoginPassword)
+	// 管理员列表 start
+	r.GET("/user",service.GetUserList)
+	// 管理员列表 end
 	return r
 }

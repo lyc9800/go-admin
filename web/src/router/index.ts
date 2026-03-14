@@ -42,14 +42,14 @@ const router=createRouter({
 // 防止首次或者刷新界面路由失效
 let registerRouteFresh=true
 // 设置白名单
-/* const whiteList=['/login'] */
+const whiteList=['/login']
 // 路由拦截守卫
 router.beforeEach(async(to,from,next)=>{
     // 1.Nprogress开始
     Nprogress.start()
 
     // 如果是白名单的路径，直接放行
- /*    const some=whiteList.some(function(item){ 
+    const some=whiteList.some(function(item){ 
         return to.path.indexOf(item)!==-1
     })
     if(some){
@@ -62,7 +62,7 @@ router.beforeEach(async(to,from,next)=>{
         }
     }
 
- */
+
     // 获取菜单信息
     const menuStore=useMenuStore()
     // 如果routers为空，获取菜单数据
