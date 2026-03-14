@@ -13,7 +13,7 @@ background-color:#f2f2f2
 
 /* 清楚a标签下划线 */
 a{
- color:#666
+ color:#666;
  text-decoration:none
 }
 a:hover{

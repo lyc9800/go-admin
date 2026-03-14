@@ -10,6 +10,8 @@ import 'virtual:svg-icons-register'
 // 导入element-plus图标
 import * as ElementPlusIconsVue  from '@element-plus/icons-vue'
 import SvgIcon from './components/SvgIcon/Index.vue'
+import zhCn from "element-plus/es/locale/lang/zh-cn";
+
 const app=createApp(App)
 app.use(router)
 app.use(pinia)
@@ -18,5 +20,7 @@ for (const [key,component] of Object.entries(ElementPlusIconsVue)) {
     app.component(key,component)
 }
 app.component('svg-icon',SvgIcon)
-app.use(ElementPlus)
+app.use(ElementPlus,{
+    locale:zhCn
+})
 app.mount('#app')

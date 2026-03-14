@@ -10,7 +10,8 @@ var DB *gorm.DB
 
 func NewGormDB() {
 	// 定义数据连接信息
-	dsn := "root:Mysql_2022@tcp(192.168.6.242:4306)/go_admin?charset=utf8mb4&parseTime=True&loc=Local"
+	// dsn := "root:Mysql_2022@tcp(192.168.6.242:4306)/go_admin?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := "root:123456@tcp(192.168.123.110:3306)/go_admin?charset=utf8mb4&parseTime=True&loc=Local"
 	// 连接数据库
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
 		// 禁用外键约束

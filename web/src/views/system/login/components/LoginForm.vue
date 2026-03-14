@@ -83,7 +83,7 @@ const submitForm=(formEl: FormInstance | undefined)=>{
       console.log('API 返回数据:', data)
       if(data.code === 200){
         // 设置token
-        console.log('准备设置 token:', data.token) 
+        console.log('准备设置 token:', data.result.token) 
         userStore.setToken(data.result.token)
         // 设置用户信息
         userStore.setUserInfo(data.userInfo)

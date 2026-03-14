@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="80" viewBox="0 0 200 80" style="background: transparent;">
+
+  <!-- 左上角像素装饰 -->
+  <g id="corner-top-left">
+    <rect x="20" y="12" width="4" height="4" fill="#e99d53"/>
+    <rect x="28" y="12" width="4" height="4" fill="#e99d53"/>
+    <rect x="36" y="12" width="4" height="4" fill="#e99d53"/>
+    <rect x="20" y="20" width="4" height="4" fill="#e99d53"/>
+    <rect x="28" y="20" width="4" height="4" fill="#e99d53"/>
+    <rect x="20" y="28" width="4" height="4" fill="#e99d53"/>
+  </g>
+
+  <!-- 右上角像素装饰（对称） -->
+  <g id="corner-top-right">
+    <rect x="176" y="12" width="4" height="4" fill="#e99d53"/>
+    <rect x="168" y="12" width="4" height="4" fill="#e99d53"/>
+    <rect x="160" y="12" width="4" height="4" fill="#e99d53"/>
+    <rect x="176" y="20" width="4" height="4" fill="#e99d53"/>
+    <rect x="168" y="20" width="4" height="4" fill="#e99d53"/>
+    <rect x="176" y="28" width="4" height="4" fill="#e99d53"/>
+  </g>
+
+  <!-- 主文字：后台管理系统 -->
+  <text x="100" y="35" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="24" font-weight="bold" fill="#e99d53" text-anchor="middle" dominant-baseline="middle">
+    后台管理
+  </text>
+
+  <!-- 英文小字（居中在主文字下方） -->
+  <text x="100" y="55" font-family="Arial, sans-serif" font-size="10" fill="#e99d53" opacity="0.8" text-anchor="middle" dominant-baseline="middle">
+    BACKEND SYSTEM
+  </text>
+
+  <!-- 左下角像素装饰 -->
+  <g id="corner-bottom-left">
+    <rect x="20" y="44" width="4" height="4" fill="#e99d53"/>
+    <rect x="20" y="52" width="4" height="4" fill="#e99d53"/>
+    <rect x="28" y="52" width="4" height="4" fill="#e99d53"/>
+    <rect x="20" y="60" width="4" height="4" fill="#e99d53"/>
+	<rect x="28" y="60" width="4" height="4" fill="#e99d53"/>
+    <rect x="36" y="60" width="4" height="4" fill="#e99d53"/>
+  </g>
+
+  <!-- 右下角像素装饰 -->
+  <g id="corner-bottom-right">
+    <rect x="176" y="44" width="4" height="4" fill="#e99d53"/>
+    <rect x="176" y="52" width="4" height="4" fill="#e99d53"/>
+    <rect x="168" y="52" width="4" height="4" fill="#e99d53"/>
+    <rect x="176" y="60" width="4" height="4" fill="#e99d53"/>
+    <rect x="168" y="60" width="4" height="4" fill="#e99d53"/>
+    <rect x="160" y="60" width="4" height="4" fill="#e99d53"/>
+  </g>
+
+</svg>

@@ -5,7 +5,7 @@ import {useMenuStore} from '@/store/modules/menu'
 import {useUserStore} from '@/store/modules/user'
 // 定义路由和组件映射关系
 const modules=import.meta.glob("@/views/**/**.vue")
-
+console.log('📦 modules 所有键:', Object.keys(modules))
 // 2.定义一些路由地址，每个都需要映射到一个组件
 const routes=[{
     path:'/',
@@ -91,7 +91,7 @@ router.beforeEach(async(to,from,next)=>{
                     icon:item.web_icon,
                     title:item.name
                 },
-                component:modules[`@/views/${item.component_name}`]
+                component:modules[`/src/views/${item.component_name}`]
             })
         }
         if(item.sub_menus){
@@ -104,7 +104,7 @@ router.beforeEach(async(to,from,next)=>{
                             icon:subItem.web_icon,
                             title:subItem.name
                          },
-                         component:modules[`@/views/${subItem.component_name}`]
+                         component:modules[`/src/views/${subItem.component_name}`]
                     })
                 }
             })

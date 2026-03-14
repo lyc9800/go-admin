@@ -38,7 +38,7 @@
       <!-- 登陆用户信息 end -->
       <!-- 退出系统 start -->
        <el-popconfirm confirm-button-text="确定" cancel-button-text="取消" :icon="SwitchButton"
-       icon-color="#30bcd7" title="确定要退出吗?" @confirm="exit">
+       icon-color="#30bcd7" title="确定要退出吗?" @confirm="exit" >
         <template #reference>
           <el-link :underline="false"  class="logout-btn">
             <el-icon>
@@ -82,6 +82,7 @@ const exit =()=>{
   align-items: center;
   text-align: center;
   float: right;
+  
 }
 .linkBox .el-link{
   margin-right: 25px;
