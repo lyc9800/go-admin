@@ -108,7 +108,7 @@
                 layout="total,sizes,prev,pager,next,jumper"
                 :total="total"
                 v-model:page-size="pageSize"
-                :page-sizes="[10,20,30,40]" />
+                :page-sizes="[10,20,30,40]" @current-change="changePage"/>
             <!-- 分页组件 end -->
         </div>
         <!-- 表格区域 end -->
@@ -155,6 +155,17 @@ onMounted(()=>{
 })
 const {tableData,pageSize,loading,total,searchValue} =toRefs(state)
 
+// 切换页码执行事件
+const changePage = (val)=>{
+    state.pageIndex=val
+    loadData(state)
+}
+// 设置每页序号
+const Nindex = (index)=>{
+    const page=state.pageIndex
+    const pageSize=state.pageSize
+    return index+1+(page-1)*pageSize
+}
 // 搜索方法
 const search = () => {
   if(state.searchValue!=null&&state.searchValue!=''){
