@@ -112,14 +112,43 @@
             <!-- 分页组件 end -->
         </div>
         <!-- 表格区域 end -->
+        <!-- 新增管理员添加弹出框 start -->
+        <el-dialog v-model="addUserVisble" align-center width="42%" destroy-on-close>
+            <template #header>
+                <div class="my-header">
+                    <el-icon size="26px"><edit-pen /></el-icon>
+                    <h1>添加用户</h1>
+                </div>
+            </template>
+            <!-- 添加管理员组件 start -->
+             <Adduser @closeAdduserForm="closeAdduserForm" @success="success"/>
+            <!-- 添加管理员组件 end -->
+        </el-dialog>
+        <!-- 新增管理员添加弹出框 end -->
+
+        <!-- 编辑管理员添加弹出框 start -->
+        <el-dialog v-model="editUserVistble" align-center width="42%" destroy-on-close>
+            <template #header>
+                <div class="my-header">
+                    <el-icon size="26px"><edit-pen /></el-icon>
+                    <h1>编辑用户</h1>
+                </div>
+            </template>
+            <!-- 编辑管理员组件 start -->
+             <EditUser :userInfo="userInfo"/>
+            <!-- 编辑管理员组件 end -->
+        </el-dialog>
+        <!-- 编辑管理员添加弹出框 end -->
     </el-card>
 </template>
 
 <script lang='ts' setup>
 import { ref ,reactive,toRefs,onMounted} from 'vue'
-import { getUserListApi } from '@/api/system/user/user'
+import { getUserListApi,getUserApi } from '@/api/system/user/user'
 import { formatTime} from '@/utils/date'
 import {ElMessage} from 'element-plus'
+import  Adduser from './compentents/Adduser.vue'
+import EditUser from './compentents/EditUser.vue'
 const state = reactive({
     // 搜索关键字
     searchValue:"",
@@ -176,10 +205,29 @@ const search = () => {
     })
   }
 }
-
-// 添加用户
+// 新增管理员弹出框状态
+const addUserVisble = ref(false)
+// 弹出新增管理员表单的函数
 const addUser = () => {
-  console.log('添加用户')
+  addUserVisble.value=true
+}
+// 关闭新增管理员表单的函数
+const closeAdduserForm = () => {
+  addUserVisble.value=false
+}
+// 提交表单后回调函数
+const success = () => {
+  closeAdduserForm()
+  loadData(state)
+}
+// 编辑管理员弹出框状态
+const editUserVistble = ref(false)
+const userInfo = ref()
+// 获取用户信息
+const editUser=async(id:number) => {
+  const {data}=await getUserApi(id)
+  userInfo.value=data.result
+  editUserVistble.value=true
 }
 
 // 导出 Excel
@@ -220,6 +268,13 @@ const refresh = () => {
 .my-button{
     display: flex;
     justify-content: space-between;
+}
+/* 自定义弹出框头部样式 */
+.my-header{
+    display: flex;
+    justify-content: flex-start;
+    color: #e99d53;
+    gap: 10px;
 }
 /* 自定义分页插件样式 */
 .el-pagination{
