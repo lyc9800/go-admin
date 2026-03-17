@@ -32,3 +32,9 @@ export function editUserApi(data:object){
         data
     })
 }
+export function delUserApi(id:number){
+    return request({
+        url:`user/${id}`,
+        method:'delete',
+    })
+}

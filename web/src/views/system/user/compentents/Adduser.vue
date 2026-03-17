@@ -23,7 +23,7 @@
             </el-col>
             <el-col :span="24">
                 <el-form-item label="备注">
-                    <el-input :rows="2" type="textarea"  v-model="formUser.remark" placeholder="请输入备注"></el-input>
+                    <el-input :rows="2" type="textarea"  v-model="formUser.remarks" placeholder="请输入备注"></el-input>
                 </el-form-item>
             </el-col>
         </el-row>
@@ -46,7 +46,7 @@ const formUser = reactive({
     username: '',
     password: '123456',
     phone: '',
-    remark: '',
+    remarks: '',
     email: '',
 })
 // 表单验证规则
@@ -59,9 +59,7 @@ const rules=reactive<FormRules>({
 })
 // 添加用户
 const addUser= async(formEl:FormInstance|undefined)=>{
-    console.log('1. 函数开始执行，formEl:', formEl)
     if(!formEl) {
-        console.log('2. formEl 为空，直接返回')
         return
     }
     await formEl.validate(async(valid,fields) => {

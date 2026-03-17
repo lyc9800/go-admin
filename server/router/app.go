@@ -22,5 +22,9 @@ func App() *gin.Engine {
 	r.GET("/user/detail/:id", service.GetUserDetail)
 	// 修改用户信息
 	r.PUT("/user", service.UpdateUser)
+	// 删除用户
+	r.DELETE("/user/:id", service.DeleteUser)
+	// 角色列表
+	r.GET("/role", service.GetRoleList)
 	return r
 }

@@ -1,5 +1,5 @@
 <template>
-    <el-card class="box-card user-management-card">
+    <el-card class="box-card">
         <!-- 头部 start -->
         <template #header>
             <div class="card-header ">
@@ -108,7 +108,7 @@
                 layout="total,sizes,prev,pager,next,jumper"
                 :total="total"
                 v-model:page-size="pageSize"
-                :page-sizes="[10,20,30,40]" @current-change="changePage"/>
+                :page-sizes="[10,20,30,40]" @current-change="changePage" @size-change="changeSize"/>
             <!-- 分页组件 end -->
         </div>
         <!-- 表格区域 end -->
@@ -135,7 +135,7 @@
                 </div>
             </template>
             <!-- 编辑管理员组件 start -->
-             <EditUser :userInfo="userInfo"/>
+             <EditUser :userInfo="userInfo" @closeEditUserForm="closeEditUserForm" @success="success"/>
             <!-- 编辑管理员组件 end -->
         </el-dialog>
         <!-- 编辑管理员添加弹出框 end -->
@@ -144,11 +144,12 @@
 
 <script lang='ts' setup>
 import { ref ,reactive,toRefs,onMounted} from 'vue'
-import { getUserListApi,getUserApi } from '@/api/system/user/user'
+import { getUserListApi,getUserApi,delUserApi } from '@/api/system/user/user'
 import { formatTime} from '@/utils/date'
 import {ElMessage} from 'element-plus'
 import  Adduser from './compentents/Adduser.vue'
 import EditUser from './compentents/EditUser.vue'
+import { exportExcel } from '@/utils/exportExcel'
 const state = reactive({
     // 搜索关键字
     searchValue:"",
@@ -184,6 +185,11 @@ onMounted(()=>{
 })
 const {tableData,pageSize,loading,total,searchValue} =toRefs(state)
 
+const changeSize=(val)=>{
+    state.pageSize=val
+    state.pageIndex = 1 
+    loadData(state)
+}
 // 切换页码执行事件
 const changePage = (val)=>{
     state.pageIndex=val
@@ -219,6 +225,7 @@ const closeAdduserForm = () => {
 const success = () => {
   closeAdduserForm()
   loadData(state)
+  closeEditUserForm()
 }
 // 编辑管理员弹出框状态
 const editUserVistble = ref(false)
@@ -229,10 +236,42 @@ const editUser=async(id:number) => {
   userInfo.value=data.result
   editUserVistble.value=true
 }
-
+// 关闭用户编辑弹出框
+const closeEditUserForm = () => {
+  editUserVistble.value=false
+}
+// 删除用户
+const delUser=async(id:number) => {
+  const {data}=await delUserApi(id)
+  if(data.code===200){
+    ElMessage({
+        type:'success',
+        message:'删除成功'
+    })
+    loadData(state)
+  }else{
+    ElMessage({
+        type:'error',
+        message:'删除失败'
+    })
+  }
+}
 // 导出 Excel
+const column=[
+    {name:'id',label:'用户ID'},
+    {name:'username',label:'用户名'},
+    {name:'phone',label:'手机号'},
+    {name:'email',label:'邮箱'},
+    {name:'created_at',label:'创建时间',formatter:formatTime},
+    {name:'updated_at',label:'更新时间',formatter:formatTime}
+]
 const exportExcelAction = () => {
-  console.log('导出 Excel')
+  exportExcel({
+    column,
+    data:state.tableData,
+    fileName:'用户信息',
+    autowidth:true
+  })
 }
 
 // 刷新
@@ -261,9 +300,9 @@ const refresh = () => {
     border-radius: 0px;
     border: none;
 }
-.user-management-card {
+/* .user-management-card {
   margin-top: 20px;
-}
+} */
 /* 自定义按钮样式 */
 .my-button{
     display: flex;

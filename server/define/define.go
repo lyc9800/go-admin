@@ -1,8 +1,9 @@
 package define
 
 import (
-	"github.com/golang-jwt/jwt/v5"
 	"time"
+
+	"github.com/golang-jwt/jwt/v5"
 )
 
 var (
@@ -13,12 +14,12 @@ var (
 	// 刷新token过期时间,14天过期
 	RefreshTokenExpire = time.Now().Add(time.Second * 3600 * 24 * 14).Unix()
 	// 默认分页显示的条数
-	DefaultSize=10
+	DefaultSize = 10
 )
 
 type UserClaim struct {
 	Id      uint
 	Name    string
-	IsAdmin bool // 是否为管理员
+	IsAdmin int // 是否为管理员
 	jwt.RegisteredClaims
 }

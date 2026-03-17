@@ -30,6 +30,8 @@ type GetUserListReply struct {
 	Username  string `json:"username"`
 	Avatar    string `json:"avatar"`
 	Phone     string `json:"phone"`
+	Email     string `json:"email"`
+	Remarks   string `json:"remarks"`
 	CreatedAt string `json:"created_at"`
 	UpdatedAt string `json:"updated_at"`
 }
@@ -40,7 +42,7 @@ type AddUserRequest struct {
 	Password string `json:"password"`
 	Phone    string `json:"phone"`
 	Email    string `json:"email"`
-	Remark   string `json:"remark"`
+	Remarks  string `json:"remarks"`
 }
 
 // 返回用户详细信息结构体
@@ -53,4 +55,19 @@ type GetUserDetailReply struct {
 type UpdateUserRequest struct {
 	ID uint `json:"id"`
 	AddUserRequest
+}
+
+// 角色列表查询
+type GetRoleListRequest struct {
+	*QueryRequest
+}
+
+type GetRoleListReply struct {
+	ID        uint   `json:"id"`
+	Name      string `json:"name"`
+	CreatedAt string `json:"created_at"`
+	UpdatedAt string `json:"updated_at"`
+	Sort      int    `json:"sort"`
+	IsAdmin   int    `json:"is_admin"`
+	Remarks   string `json:"remarks"`
 }

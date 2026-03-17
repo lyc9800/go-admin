@@ -22,7 +22,7 @@ func GetUserList(c *gin.Context) {
 		cnt  int64
 		list = make([]*GetUserListReply, 0)
 	)
-	err = models.GetUserList(in.Keyword).Count(&cnt).Offset((in.Page - 1) * in.Size).Limit(in.Size).Find(&list).Error
+	err = models.GetUserList(in.Keyword).Select("id, username, email, phone, remarks, avatar, created_at, updated_at").Count(&cnt).Offset((in.Page - 1) * in.Size).Limit(in.Size).Find(&list).Error
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"code": -1,
@@ -66,7 +66,7 @@ func AddUSer(c *gin.Context) {
 		Email:    in.Email,
 		Password: in.Password,
 		Phone:    in.Phone,
-		Remark:   in.Remark,
+		Remarks:  in.Remarks,
 		UserName: in.Username,
 	}).Error
 	if err != nil {
@@ -104,7 +104,7 @@ func GetUserDetail(c *gin.Context) {
 		return
 	}
 	data.ID = sysUser.ID
-	data.Remark = sysUser.Remark
+	data.Remarks = sysUser.Remarks
 	data.Phone = sysUser.Phone
 	data.Username = sysUser.UserName
 	data.Email = sysUser.Email
@@ -142,7 +142,7 @@ func UpdateUser(c *gin.Context) {
 		"username": in.Username,
 		"phone":    in.Phone,
 		"email":    in.Email,
-		"remark":   in.Remark,
+		"remarks":  in.Remarks,
 	}).Error
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -154,5 +154,30 @@ func UpdateUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code": 200,
 		"msg":  "更新数据成功",
+	})
+}
+
+// 删除用户
+func DeleteUser(c *gin.Context) {
+	id := c.Param("id")
+	if id == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": -1,
+			"msg":  "参数错误: id不能为空",
+		})
+		return
+	}
+	uId, err := strconv.Atoi(id)
+	err = models.DB.Delete(&models.SysUser{}, uId).Error
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": -1,
+			"msg":  "删除失败",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code": 200,
+		"msg":  "删除数据成功",
 	})
 }

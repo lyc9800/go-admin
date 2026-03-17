@@ -80,15 +80,11 @@ const submitForm=(formEl: FormInstance | undefined)=>{
     if (valid) {
       // 登录成功
       const {data} = await loginApi({...ruleForm})
-      console.log('API 返回数据:', data)
       if(data.code === 200){
         // 设置token
-        console.log('准备设置 token:', data.result.token) 
         userStore.setToken(data.result.token)
         // 设置用户信息
         userStore.setUserInfo(data.userInfo)
-        console.log('登录后 token:', userStore.token) // 确认 token 已设置
-        console.log('当前路由表:', router.getRoutes().map(r => r.path)) // 查看所有已注册路由
         // 跳转到首页
         setTimeout(()=>{
           // window.location.href='/home'

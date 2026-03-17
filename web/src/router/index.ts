@@ -5,7 +5,6 @@ import {useMenuStore} from '@/store/modules/menu'
 import {useUserStore} from '@/store/modules/user'
 // 定义路由和组件映射关系
 const modules=import.meta.glob("@/views/**/**.vue")
-console.log('📦 modules 所有键:', Object.keys(modules))
 // 2.定义一些路由地址，每个都需要映射到一个组件
 const routes=[{
     path:'/',
