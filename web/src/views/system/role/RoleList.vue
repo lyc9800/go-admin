@@ -26,7 +26,7 @@
                         </el-col>
 
                         <el-col :span="3" style="display: inline-flex;justify-content: center;align-items: center;cursor: pointer;">
-                            <el-icon style="font-size: 20px;" color="#b3b6bc" @click="refresh"><refresh/></el-icon>
+                            <el-icon style="font-size: 20px;" color="#b3b6bc" @click="refresh"><Refresh/></el-icon>
                         </el-col>
                     </el-row>
                  </div>
@@ -113,6 +113,7 @@
 import { formatTime } from '@/utils/date';
 import {ref,reactive,toRefs,onMounted} from 'vue'
 import {getRoleListApi} from '@/api/system/role/role'
+import {ElMessage} from 'element-plus'
 const state=reactive({
     loading:false,
     tableData:[],
@@ -127,6 +128,7 @@ const loadData= async (state:any)=>{
     const params={
         'pageIndex':state.pageIndex,
         'pageSize':state.pageSize,
+        'keyword':state.searchValue,
     }
     const {data} =await getRoleListApi(params)
     state.tableData=data.result.list
@@ -149,8 +151,23 @@ const changePage = (val)=>{
     state.pageIndex=val
     loadData(state)
 }
+const Nindex = (index)=>{
+    const page=state.pageIndex
+    const pageSize=state.pageSize
+    return index+1+(page-1)*pageSize
+}
+const refresh=()=>{
+    state.searchValue = ''
+    loadData(state)
+}   
 const search=()=>{
-    console.log('search')
+    if(state.searchValue!=null&&state.searchValue!=''){
+        loadData(state)
+        ElMessage({
+            type:'success',
+            message:`关键字"${state.searchValue}"搜索内容如下`
+        })
+    }
 }
 </script>
 
