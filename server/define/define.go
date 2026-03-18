@@ -20,6 +20,6 @@ var (
 type UserClaim struct {
 	Id      uint
 	Name    string
-	IsAdmin int // 是否为管理员
+	IsAdmin int8 // 是否为管理员
 	jwt.RegisteredClaims
 }

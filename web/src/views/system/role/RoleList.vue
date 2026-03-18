@@ -107,13 +107,40 @@
                 :page-sizes="[10,20,30,40]" @current-change="changePage" @size-change="changeSize"/>
           <!-- 分页 end -->
     </el-card>
+
+     <el-dialog align-center v-model="addRoleFormVisible" width="45%" destroy-on-close>
+        <template #header>
+            <div class="my-header">
+                <el-icon size="26px"><EditPen/></el-icon>
+                <h1>新增角色</h1>
+            </div>
+        </template>
+            <!-- 添加角色 start-->
+             <AddRole @closeAddRoleForm="closeAddRoleForm" @success="success"/>
+            <!-- 添加角色 end-->
+     </el-dialog>
+     <!-- 新增角色弹窗 start -->
+      <el-dialog align-center v-model="editRoleFormVisible" width="50%" destroy-on-close>
+        <template #header>
+            <div class="my-header">
+                <el-icon size="26px"><EditPen/></el-icon>
+                <h1>编辑角色</h1>
+            </div>
+        </template>
+            <!-- 编辑角色 start-->
+             <EditRole :roleInfo="roleInfo" @closeEditRoleForm="closeEditRoleForm" @success="success"/>
+      </el-dialog>
 </template>
 
 <script setup lang="ts">
 import { formatTime } from '@/utils/date';
+import {exportExcel} from '@/utils/exportExcel'
 import {ref,reactive,toRefs,onMounted} from 'vue'
-import {getRoleListApi} from '@/api/system/role/role'
+import {getRoleListApi,delRoleApi,getRoleApi} from '@/api/system/role/role'
 import {ElMessage} from 'element-plus'
+import AddRole from './compentents/AddRole.vue';
+import EditRole from './compentents/EditRole.vue';
+
 const state=reactive({
     loading:false,
     tableData:[],
@@ -138,6 +165,21 @@ const loadData= async (state:any)=>{
 onMounted(()=>{
     loadData(state)
 })
+// 关闭新增角色弹窗
+const closeAddRoleForm=()=>{
+    addRoleFormVisible.value=false
+}
+// 编辑角色弹窗
+const editRoleFormVisible=ref(false )
+const roleInfo=ref()
+const editRole= async(id:number)=>{
+    const {data } =await getRoleApi(id) 
+    roleInfo.value=data.result  
+    editRoleFormVisible.value=true
+}
+const closeEditRoleForm=()=>{
+    editRoleFormVisible.value=false
+}   
 const {tableData,total,pageSize,searchValue,loading}=toRefs(state)
 
 
@@ -156,6 +198,12 @@ const Nindex = (index)=>{
     const pageSize=state.pageSize
     return index+1+(page-1)*pageSize
 }
+// 新增角色弹出框状态
+const addRoleFormVisible=ref(false)
+
+const addRole=()=>{
+    addRoleFormVisible.value=true
+}
 const refresh=()=>{
     state.searchValue = ''
     loadData(state)
@@ -168,6 +216,43 @@ const search=()=>{
             message:`关键字"${state.searchValue}"搜索内容如下`
         })
     }
+}
+// 新增角色成功刷新界面
+const success=()=>{
+    loadData(state)
+    closeAddRoleForm()
+    closeEditRoleForm()
+}
+const delRole=async(id:number) => { 
+    const {data}=await delRoleApi(id)
+        if(data.code===200){
+            ElMessage({
+                type:'success',
+                message:'删除成功'
+            })
+            await loadData(state)
+        }else{
+            ElMessage({
+                type:'error',
+                message:'删除失败'
+            })
+        }
+}   
+const column=[
+    {name:'id',label:'角色ID'},
+    {name:'name',label:'角色名称'},
+    {name:'remarks',label:'角色描述'},
+    {name:'sort',label:'排序'},
+    {name:'is_admin',label:'是否是管理员'}
+]
+const exportExcelAction=()=>{
+    exportExcel({
+        column,
+        data:state.tableData,
+        fileName:'角色信息',
+        format:'xlsx',
+        autowidth:true,
+    })
 }
 </script>
 
@@ -190,6 +275,11 @@ const search=()=>{
 .el-pagination{
     justify-content: center;
     margin-top: 20px;
+}
+.my-header{
+    display: flex;
+    justify-content: flex-start;
+    color: #e99d53;
 }
 :deep(.el-pagination.is-background .el-pager li:not(.is-disabled).is-active){
     background-color: #e99d53;

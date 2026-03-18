@@ -147,7 +147,7 @@ import { ref ,reactive,toRefs,onMounted} from 'vue'
 import { getUserListApi,getUserApi,delUserApi } from '@/api/system/user/user'
 import { formatTime} from '@/utils/date'
 import {ElMessage} from 'element-plus'
-import  Adduser from './compentents/Adduser.vue'
+import  Adduser from './compentents/AddUser.vue'
 import EditUser from './compentents/EditUser.vue'
 import { exportExcel } from '@/utils/exportExcel'
 const state = reactive({
