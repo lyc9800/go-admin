@@ -1,151 +1,222 @@
 import Nprogress from '@/config/nprogress'
 // 1.导入vue-router模块
-import {createRouter,createWebHashHistory} from 'vue-router'
+import {createRouter, createWebHashHistory} from 'vue-router'
 import {useMenuStore} from '@/store/modules/menu'
 import {useUserStore} from '@/store/modules/user'
+
 // 定义路由和组件映射关系
-const modules=import.meta.glob("@/views/**/**.vue")
-console.log('🔍 所有可用模块键:', Object.keys(modules))
+const modules = import.meta.glob("@/views/**/**.vue")
+
+
 // 2.定义一些路由地址，每个都需要映射到一个组件
-const routes=[{
-    path:'/',
-    redirect:'/login',
-    meta:{title:'后台管理系统-登陆'},
-    component:()=> import ('../views/system/login/Login.vue')
-},
-{
-    path:'/login',
-    name:'Login',
-    meta:{title:'后台管理系统-登陆'},
-    component:()=> import ('../views/system/login/Login.vue')
-},
-{
-    path: '/index',
-    name:'Index',
-    component:()=>import('@/views/system/layout/Index.vue'),
-    redirect:'/home',
-    children:[
-        {
-            path:'/home',
-            name:'Home',
-            meta:{title:'首页',icon:'House'},
-            component: ()=> import('@/views/system/home/Index.vue')
-        }
-    ]
-}
+const routes = [
+    {
+        path: '/',
+        redirect: '/login',
+        meta: {title: '后台管理系统-登陆'},
+        component: () => import('../views/system/login/Login.vue')
+    },
+    {
+        path: '/login',
+        name: 'Login',
+        meta: {title: '后台管理系统-登陆'},
+        component: () => import('../views/system/login/Login.vue')
+    },
+    {
+        path: '/index',
+        name: 'Index',
+        component: () => import('@/views/system/layout/Index.vue'),
+        redirect: '/home',
+        children: [
+            {
+                path: '/home',
+                name: 'Home',
+                meta: {title: '首页', icon: 'House'},
+                component: () => import('@/views/system/home/Index.vue')
+            }
+        ]
+    }
 ]
+
 // 3.创建路由实例并传递'routes'配置
-const router=createRouter({
-    history:createWebHashHistory(),
-    routes:routes
+const router = createRouter({
+    history: createWebHashHistory(),
+    routes: routes
 })
+
 // 防止首次或者刷新界面路由失效
-let registerRouteFresh=true
+let registerRouteFresh = true
 // 设置白名单
-const whiteList=['/login']
+const whiteList = ['/login']
+
+// 辅助函数：动态导入组件
+const loadComponent = (componentPath: string) => {
+    if (!componentPath) return null
+    
+    const fullPath = `/src/views/${componentPath}`
+    
+    
+    const importFn = modules[fullPath]
+    if (importFn) {
+        return importFn
+    } else {
+        
+        // 返回一个默认组件
+        return () => import('@/views/system/error/NotFound.vue')
+    }
+}
+
+// 辅助函数：递归生成动态路由
+const generateDynamicRoutes = (menus: any[], parentPath = '') => {
+    const dynamicRoutes: any[] = []
+    
+    menus.forEach(menu => {
+        // 处理父级菜单
+        if (menu.level === 0) {
+            const route: any = {
+                path: menu.path,
+                name: menu.name,
+                meta: {
+                    icon: menu.web_icon,
+                    title: menu.name
+                },
+                component: () => import('@/views/system/layout/Index.vue'),
+                children: []
+            }
+            
+            // 如果有子菜单
+            if (menu.sub_menus && menu.sub_menus.length > 0) {
+                menu.sub_menus.forEach((subMenu: any) => {
+                    route.children.push({
+                        path: subMenu.path,
+                        name: subMenu.name,
+                        meta: {
+                            icon: subMenu.web_icon,
+                            title: subMenu.name
+                        },
+                        component: loadComponent(subMenu.component_name)
+                    })
+                })
+            }
+            
+            dynamicRoutes.push(route)
+        } 
+        // 处理一级菜单（没有父级但有组件）
+        else if (menu.level === 1 && menu.component_name) {
+            // 找到对应的父级路由（path 去除最后一段）
+            const parentPath = menu.path.substring(0, menu.path.lastIndexOf('/'))
+            
+            // 查找是否已存在父级路由
+            let parentRoute = dynamicRoutes.find(r => r.path === parentPath)
+            
+            if (parentRoute) {
+                // 如果父级存在，添加到父级的children
+                parentRoute.children.push({
+                    path: menu.path,
+                    name: menu.name,
+                    meta: {
+                        icon: menu.web_icon,
+                        title: menu.name
+                    },
+                    component: loadComponent(menu.component_name)
+                })
+            } else {
+                // 如果父级不存在，创建一个带有布局的路由
+                dynamicRoutes.push({
+                    path: parentPath,
+                    name: `${menu.name}Parent`,
+                    component: () => import('@/views/system/layout/Index.vue'),
+                    children: [{
+                        path: menu.path,
+                        name: menu.name,
+                        meta: {
+                            icon: menu.web_icon,
+                            title: menu.name
+                        },
+                        component: loadComponent(menu.component_name)
+                    }]
+                })
+            }
+        }
+    })
+    
+    return dynamicRoutes
+}
+
 // 路由拦截守卫
-router.beforeEach(async(to,from,next)=>{
-    console.log('🚦 路由守卫开始，目标路径:', to.path)
-    console.log(`🚦 路由守卫触发: ${from.path || 'null'} -> ${to.path}`)
+router.beforeEach(async (to, from, next) => {
+
+    
     // 1.Nprogress开始
     Nprogress.start()
 
     // 如果是白名单的路径，直接放行
-    const some=whiteList.some(function(item){ 
-        console.log('✅ 白名单路径，直接放行')
-        return to.path.indexOf(item)!==-1
- 
-    })
-    if(some){
+    const isWhiteList = whiteList.some(item => to.path.indexOf(item) !== -1)
+    
+    if (isWhiteList) {
+        
         return next()
-    }else{
+    } else {
         // 判断是否已经登陆
-        const userStore=useUserStore()
-        if(userStore.token==''|| userStore.token==null){
-            console.log('❌ 未登录，跳转到登录页')
-            return next({path:`/login?redirect=${to.path}`,replace:true})
+        const userStore = useUserStore()
+        if (!userStore.token) {
+            
+            return next({path: `/login?redirect=${to.path}`, replace: true})
         }
     }
-
 
     // 获取菜单信息
-    const menuStore=useMenuStore()
-    console.log('🔄 检查菜单Store状态:', {
-    routers长度: menuStore.routers.length,
-    routers内容: menuStore.routers,
-    store对象: menuStore
-    })
+    const menuStore = useMenuStore()
+    
 
     // 如果routers为空，获取菜单数据
-    if(menuStore.routers.length==0){
-        console.log('🔄 开始获取菜单数据...')
+    if (menuStore.routers.length === 0) {
+        
         await menuStore.generateRouter()
     }
-    console.log('动态路由数据:', JSON.parse(JSON.stringify(menuStore.routers)))
-    // 生成动态路由 start
-    menuStore.routers.forEach((item:any)=>{
-        // 组装动态路由地址 start
-        let myRoute:any={}
-        myRoute={
-            path:item.path,
-            name:item.name,
-            meta:{
-                icon:item.web_icon,
-                title:item.name
-            },
-            component:()=>import('@/views/system/layout/Index.vue')
-        }
-        myRoute.children=[]
-        if(item.level===1 && item.component_name.length!=0){
-            myRoute.children.push({
-                path:item.path,
-                name:item.name,
-                meta:{
-                    icon:item.web_icon,
-                    title:item.name
-                },
-                component:modules[`@/views/${item.component_name}`]
-            })
-        }
-        if(item.sub_menus){
-            item.sub_menus.forEach((subItem:any)=>{
-                if(subItem.path){
-                    myRoute.children.push({
-                         path:subItem.path,
-                         name:subItem.name,
-                         meta:{
-                            icon:subItem.web_icon,
-                            title:subItem.name
-                         },
-                         component:modules[`@/views/${subItem.component_name}`]
-                    })
-                }
-            })
-        }
-        routes.push(myRoute)
-        // 组装动态路由地址 end
-    })
-    if(registerRouteFresh){
-        // 添加动态路由
-        routes.forEach(item=>{
-            router.addRoute(item)
-        })
-        next({...to,replace:true})
-        registerRouteFresh=false
-    }else{
-        next()
+    
+    
 
+    // 生成并添加动态路由
+    if (registerRouteFresh && menuStore.routers.length > 0) {
+        
+        
+        // 生成动态路由
+        const dynamicRoutes = generateDynamicRoutes(menuStore.routers)
+        
+        
+        // 添加动态路由
+        dynamicRoutes.forEach(route => {
+            router.addRoute('Index', route) // 添加到 Index 路由的 children 中
+        })
+        
+        // 添加404路由（可选）
+        if (!router.hasRoute('404')) {
+            router.addRoute({
+                path: '/:pathMatch(.*)*',
+                name: '404',
+                component: () => import('@/views/system/error/404.vue')
+            })
+        }
+        
+        registerRouteFresh = false
+        
+        // 重定向当前路由以激活新添加的路由
+        return next({...to, replace: true})
     }
-    // 生成动态路由 end
-    // next()
+    
+    next()
 })
+
 // 路由跳转结束
-router.afterEach(()=>{
+router.afterEach(() => {
     Nprogress.done()
 })
+
 // 路由跳转失败
-router.onError(error=>{
+router.onError(error => {
     Nprogress.done()
-    console.warn("路由错误",error.message)
+    
 })
+
 export default router
