@@ -1,25 +1,25 @@
 <template>
-    <el-form ref="ruleFormRef" :rules="rules" :model="formRole" labek-width="100px">
+    <el-form ref="ruleFormRef" :rules="rules" :model="formRole" label-width="100px">
         <el-row>
-            <el-col :spcn="8">
+            <el-col :span="8">
                 <el-form-item label="角色名称" prop="name">
                     <el-input v-model="formRole.name" placeholder="请输入角色名称"/>
                 </el-form-item>
             </el-col>
 
-            <el-col :spcn="8">
+            <el-col :span="8">
                 <el-form-item label="角色排序" prop="sort">
                     <el-input-number v-model="formRole.sort" :min="0" placeholder="请输入角色排序"/>
                 </el-form-item>
             </el-col>
 
-            <el-col :spcn="8">
+            <el-col :span="8">
                 <el-form-item label="是否为管理员">
                     <el-switch v-model="formRole.is_admin" :active-value="1" :inactive-value="0"
                     style="--el-switch-on-color:#e99d53"/>
                 </el-form-item>
             </el-col>
-            <el-col :spcn="24">
+            <el-col :span="24">
                 <el-form-item label="角色描述">
                     <el-input type="textarea"  :rows="2" v-model="formRole.remarks" placeholder="请输入角色描述"/>
                 </el-form-item>

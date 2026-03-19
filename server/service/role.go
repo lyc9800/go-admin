@@ -189,3 +189,29 @@ func DeleteRole(c *gin.Context) {
 		"msg":  "删除数据成功",
 	})
 }
+
+// 管理员状态修改
+func UpdateRoleStatus(c *gin.Context) {
+	id := c.Param("id")
+	is_admin := c.Param("is_admin")
+	if id == "" || is_admin == "" {
+		c.JSON(http.StatusOK, gin.H{
+			"code": -1,
+			"msg":  "参数错误",
+		})
+		return
+	}
+	// 更改状态
+	err := models.DB.Model(&models.SysRole{}).Where("id=?", id).Update("is_admin", is_admin).Error
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"code": -1,
+			"msg":  "修改失败",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code": 200,
+		"msg":  "修改成功",
+	})
+}

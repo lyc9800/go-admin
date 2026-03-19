@@ -58,8 +58,8 @@
                     <el-switch v-model="scope.row.is_admin" 
                     :active-value="1"
                     :inactive-value="0"
-                    style="--el-switch-on-color:#e99d53">
-                </el-switch>
+                    style="--el-switch-on-color:#e99d53"
+                    :before-change="changeIsAdmin.bind(scope,scope.row)"/>
                 </template>
             </el-table-column>
 
@@ -136,8 +136,8 @@
 import { formatTime } from '@/utils/date';
 import {exportExcel} from '@/utils/exportExcel'
 import {ref,reactive,toRefs,onMounted} from 'vue'
-import {getRoleListApi,delRoleApi,getRoleApi} from '@/api/system/role/role'
-import {ElMessage} from 'element-plus'
+import {getRoleListApi,delRoleApi,getRoleApi,changeIsAdminApi} from '@/api/system/role/role'
+import {ElMessage,ElMessageBox} from 'element-plus'
 import AddRole from './compentents/AddRole.vue';
 import EditRole from './compentents/EditRole.vue';
 
@@ -252,6 +252,30 @@ const exportExcelAction=()=>{
         fileName:'角色信息',
         format:'xlsx',
         autowidth:true,
+    })
+}
+const changeIsAdmin= async(row)=>{
+    ElMessageBox.confirm("确定修改当前角色的管理员状态吗？",{
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        cancelButtonClass: 'btnConfirm',
+        autofocus:false
+    }).then(async()=>{
+        const {data}=await changeIsAdminApi(row.id,row.is_admin==1?0:1)
+        if(data.code===200){
+            ElMessage({
+                type:'success',
+                message:'修改成功'
+            })
+             loadData(state)
+        }else{
+            ElMessage({
+                type:'error',
+                message:'修改失败'
+            })
+        }
+    }).catch(()=>{
+        console.log('取消')
     })
 }
 </script>

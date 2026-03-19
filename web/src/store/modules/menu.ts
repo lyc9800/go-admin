@@ -11,6 +11,7 @@ export const useMenuStore = defineStore('menuState',{
         // 生成路由
         generateRouter: async function() {
             const {data}=await getMenuListApi()
+            console.log('API 返回数据:', data)
             this.routers=data.result
             return data.result
         }

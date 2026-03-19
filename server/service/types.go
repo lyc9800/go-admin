@@ -92,3 +92,39 @@ type UpdateRoleRequest struct {
 	ID uint `json:"id"`
 	AddRoleRequest
 }
+
+// 获取菜单列表返回参数结构体
+type MenuReplay struct {
+	ID            uint          `json:"id"`
+	ParentId      uint          `json:"parent_id"`
+	Name          string        `json:"name"`
+	WebIcon       string        `json:"web_icon"`
+	Sort          int           `json:"sort"`
+	Path          string        `json:"path"`
+	Level         int8          `json:"level"`
+	ComponentName string        `json:"component_name"`
+	SubMenus      []*MenuReplay `json:"sub_menus"`
+}
+
+// 获取所有菜单结构体
+type AllMenu struct {
+	ID            uint   `json:"id"`
+	ParentId      uint   `json:"parent_id"`
+	Name          string `json:"name"`
+	WebIcon       string `json:"web_icon"`
+	Sort          int    `json:"sort"`
+	Path          string `json:"path"`
+	Level         int8   `json:"level"`
+	ComponentName string `json:"component_name"`
+}
+
+// 增加菜单参数结构体
+type AddMenuRequest struct {
+	ParentId      uint   `json:"parent_id"`      // 父级菜单ID
+	Name          string `json:"name"`           // 菜单名称
+	WebIcon       string `json:"web_icon"`       // 图标
+	Sort          int    `json:"sort"`           // 排序
+	Path          string `json:"path"`           // 路径
+	Level         uint   `json:"level"`          // 菜单等级 {0: 目录, 1: 菜单, 3: 按钮}
+	ComponentName string `json:"component_name"` // 组件路径
+}

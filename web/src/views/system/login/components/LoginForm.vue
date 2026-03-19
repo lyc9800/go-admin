@@ -81,6 +81,7 @@ const submitForm=(formEl: FormInstance | undefined)=>{
       // 登录成功
       const {data} = await loginApi({...ruleForm})
       if(data.code === 200){
+         console.log('✅ 登录成功，准备跳转')
         // 设置token
         userStore.setToken(data.result.token)
         // 设置用户信息
@@ -88,6 +89,7 @@ const submitForm=(formEl: FormInstance | undefined)=>{
         // 跳转到首页
         setTimeout(()=>{
           // window.location.href='/home'
+          console.log('🔄 跳转到:/home')
           router.push({path:'/home'})
         },1500)
         ElNotification({

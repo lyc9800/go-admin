@@ -38,3 +38,10 @@ export function delRoleApi(id:number){
         method:'delete',
     })
 }
+// 修改管理员状态
+export function changeIsAdminApi(id:number,is_admin:number){
+    return request({
+        url:`role/${id}/${is_admin}`,
+        method:'patch',
+    })
+}

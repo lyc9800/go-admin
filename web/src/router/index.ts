@@ -5,6 +5,7 @@ import {useMenuStore} from '@/store/modules/menu'
 import {useUserStore} from '@/store/modules/user'
 // 定义路由和组件映射关系
 const modules=import.meta.glob("@/views/**/**.vue")
+console.log('🔍 所有可用模块键:', Object.keys(modules))
 // 2.定义一些路由地址，每个都需要映射到一个组件
 const routes=[{
     path:'/',
@@ -44,12 +45,16 @@ let registerRouteFresh=true
 const whiteList=['/login']
 // 路由拦截守卫
 router.beforeEach(async(to,from,next)=>{
+    console.log('🚦 路由守卫开始，目标路径:', to.path)
+    console.log(`🚦 路由守卫触发: ${from.path || 'null'} -> ${to.path}`)
     // 1.Nprogress开始
     Nprogress.start()
 
     // 如果是白名单的路径，直接放行
     const some=whiteList.some(function(item){ 
+        console.log('✅ 白名单路径，直接放行')
         return to.path.indexOf(item)!==-1
+ 
     })
     if(some){
         return next()
@@ -57,6 +62,7 @@ router.beforeEach(async(to,from,next)=>{
         // 判断是否已经登陆
         const userStore=useUserStore()
         if(userStore.token==''|| userStore.token==null){
+            console.log('❌ 未登录，跳转到登录页')
             return next({path:`/login?redirect=${to.path}`,replace:true})
         }
     }
@@ -64,10 +70,18 @@ router.beforeEach(async(to,from,next)=>{
 
     // 获取菜单信息
     const menuStore=useMenuStore()
+    console.log('🔄 检查菜单Store状态:', {
+    routers长度: menuStore.routers.length,
+    routers内容: menuStore.routers,
+    store对象: menuStore
+    })
+
     // 如果routers为空，获取菜单数据
     if(menuStore.routers.length==0){
+        console.log('🔄 开始获取菜单数据...')
         await menuStore.generateRouter()
     }
+    console.log('动态路由数据:', JSON.parse(JSON.stringify(menuStore.routers)))
     // 生成动态路由 start
     menuStore.routers.forEach((item:any)=>{
         // 组装动态路由地址 start
@@ -90,7 +104,7 @@ router.beforeEach(async(to,from,next)=>{
                     icon:item.web_icon,
                     title:item.name
                 },
-                component:modules[`/src/views/${item.component_name}`]
+                component:modules[`@/views/${item.component_name}`]
             })
         }
         if(item.sub_menus){
@@ -103,7 +117,7 @@ router.beforeEach(async(to,from,next)=>{
                             icon:subItem.web_icon,
                             title:subItem.name
                          },
-                         component:modules[`/src/views/${subItem.component_name}`]
+                         component:modules[`@/views/${subItem.component_name}`]
                     })
                 }
             })

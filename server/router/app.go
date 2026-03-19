@@ -34,5 +34,11 @@ func App() *gin.Engine {
 	r.PUT("/role", service.UpdateRole)
 	// 删除角色
 	r.DELETE("/role/:id", service.DeleteRole)
+	// 修改管理员状态
+	r.PATCH("/role/:id/:is_admin", service.UpdateRoleStatus)
+	// 获取菜单列表
+	r.GET("/menu", service.GetMenuList)
+	// 添加菜单
+	r.POST("/menu", service.AddMenu)
 	return r
 }
