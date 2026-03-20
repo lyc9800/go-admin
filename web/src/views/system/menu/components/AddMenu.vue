@@ -27,7 +27,8 @@
                             trigger="click"
                             popper-class="pure-popper"
                             :popper-options="{placement:'right'}"
-                            :visible="selectIconVisible">
+                            :visible="selectIconVisible"
+                            >
                             <template #reference>
                                 <div style="display: flex; justify-content: center; align-items: center;" @click="selectIconVisible=!selectIconVisible">
                                     <el-icon style="cursor: pointer;">

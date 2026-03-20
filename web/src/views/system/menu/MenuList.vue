@@ -109,7 +109,7 @@
 import { ref,reactive,toRefs,onMounted } from 'vue'
 import { getMenuListApi } from "@/api/system/menu/menu";
 import AddMenu from './components/AddMenu.vue';
-// import { ElMessage } from 'element-plus'
+import { ElMessage } from 'element-plus'
 const state = reactive({
     // 搜索关键字
     searchValue:'',
@@ -151,15 +151,15 @@ const success=()=>{
     loadData(state)
     closeAddMenuForm()
 }
-// const search = () => {
-//     if(state.searchValue!=null&&state.searchValue!=''){
-//         loadData(state)
-//         ElMessage({
-//             type:'success',
-//             message:`关键字"${state.searchValue}"搜索内容如下`
-//         })
-//     }
-// }
+const search = () => {
+    if(state.searchValue!=null&&state.searchValue!=''){
+        loadData(state)
+        ElMessage({
+            type:'success',
+            message:`关键字"${state.searchValue}"搜索内容如下`
+        })
+    }
+}
 
 </script>
 

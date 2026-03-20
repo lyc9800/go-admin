@@ -1,150 +1,174 @@
 <template>
-    <div class="icon-picker">
-        <div class="icon-header">
-            <span class="icon-total">共 {{ total }} 个图标</span>
-            <el-input 
-                class="icon-search" 
-                size="small" 
-                v-model="keyword" 
-                clearable
-                placeholder="搜索图标"
-                :prefix-icon="Search"
-            />
+  <div class="icon-picker">
+    <!-- 图标网格：自适应填充，分页自动推到底部 -->
+    <div class="icon-grid">
+      <div 
+        class="icon-card" 
+        v-for="(item, index) in list" 
+        :key="index"
+        @click="onChangeIcon(item?.name || '')"
+      >
+        <div class="icon-wrapper">
+          <el-icon v-if="item" :size="18">
+            <component :is="item" />
+          </el-icon>
+          <span v-else>?</span>
         </div>
-
-        <el-scrollbar height="300px" class="icon-scrollbar">
-            <div class="icon-grid">
-                <div 
-                    class="icon-card" 
-                    v-for="(item, index) in list" 
-                    :key="index"
-                    @click="onChangeIcon(item?.name || '')"
-                    :title="item?.name"
-                >
-                    <div class="icon-wrapper">
-                        <el-icon size="22" v-if="item">
-                            <component :is="item" />
-                        </el-icon>
-                    </div>
-                    <div class="icon-label">{{ item?.name || '' }}</div>
-                </div>
-            </div>
-        </el-scrollbar>
-
-        <div class="icon-footer">
-            <el-pagination
-                small
-                :total="total"
-                :page-size="pageSize"
-                :current-page="currentPage"
-                layout="prev, pager, next"
-                background
-                @current-change="onCurrentChange"
-            />
-        </div>
+      </div>
     </div>
+
+    <!-- 分页：自动推到底部 -->
+    <div class="icon-footer">
+      <el-pagination
+        :total="total"
+        :page-size="pageSize"
+        :current-page="currentPage"
+        layout="prev, pager, next"
+        small
+        @current-change="onCurrentChange"
+      />
+    </div>
+  </div>
 </template>
 
-<script lang='ts' setup>
-import { computed, ref, watch } from 'vue'
+<script lang="ts" setup>
+import { computed, ref } from 'vue'
 import * as Icons from '@element-plus/icons-vue'
-import { Search } from '@element-plus/icons-vue'
 
 const emit = defineEmits(['onChangeIcon'])
 
 const iconList = ref([
-    Icons.Edit, Icons.Delete, Icons.Plus, Icons.Search, Icons.Refresh,
-    Icons.Download, Icons.Upload, Icons.CopyDocument, Icons.Share, Icons.Scissors,
-    Icons.User, Icons.UserFilled, Icons.Lock, Icons.Unlock, Icons.Key,
-    Icons.Setting, Icons.HomeFilled, Icons.Menu, Icons.Fold, Icons.Expand,
-    Icons.Bell, Icons.Message, Icons.Comment, Icons.ChatDotRound, Icons.ChatLineRound,
-    Icons.Document, Icons.Files, Icons.Folder, Icons.DataLine, Icons.PieChart
+  Icons.Edit, Icons.Delete, Icons.Plus, Icons.Search, Icons.Refresh,
+  Icons.Download, Icons.Upload, Icons.CopyDocument, Icons.Share, Icons.Scissor,
+  Icons.User, Icons.UserFilled, Icons.Lock, Icons.Unlock, Icons.Key,
+  Icons.Setting, Icons.HomeFilled, Icons.Menu, Icons.Fold, Icons.Expand,
+  Icons.Bell, Icons.Message, Icons.Comment, Icons.ChatDotRound, Icons.ChatLineRound,
+  Icons.Document, Icons.Files, Icons.Folder, Icons.DataLine, Icons.PieChart,
+  Icons.Picture, Icons.Camera, Icons.Star, Icons.Location,
+  Icons.House, Icons.Trophy, Icons.Coin, Icons.Goods, Icons.Wallet,
+  Icons.Ship, Icons.Bicycle, 
+  Icons.Timer, Icons.AlarmClock, Icons.Calendar, Icons.Clock, Icons.Watch,
+  Icons.Phone, Icons.VideoCamera, Icons.Microphone, Icons.Headset,
+  Icons.Printer, Icons.Cpu
 ])
 
-const pageSize = ref(24)
+const pageSize = ref(20)
 const currentPage = ref(1)
-const keyword = ref('')
-
-const filteredList = computed(() => {
-    if (!keyword.value) return iconList.value
-    const kw = keyword.value.toLowerCase()
-    return iconList.value.filter(item => 
-        item?.name?.toLowerCase().includes(kw)
-    )
-})
 
 const list = computed(() => {
-    const start = (currentPage.value - 1) * pageSize.value
-    return filteredList.value.slice(start, start + pageSize.value)
+  const start = (currentPage.value - 1) * pageSize.value
+  return iconList.value.slice(start, start + pageSize.value)
 })
 
-const total = computed(() => filteredList.value.length)
-
-watch(keyword, () => {
-    currentPage.value = 1
-})
+const total = computed(() => iconList.value.length)
 
 const onCurrentChange = (page: number) => {
-    currentPage.value = page
+  currentPage.value = page
 }
 
 const onChangeIcon = (iconName: string) => {
-    if (iconName) {
-        emit('onChangeIcon', iconName)
-    }
+  if (iconName) {
+    emit('onChangeIcon', iconName)
+  }
 }
 </script>
 
 <style scoped>
-/* 最简单粗暴的修复 */
-.container ul {
-    display: grid !important;
-    grid-template-columns: repeat(6, 1fr) !important;
-    gap: 8px !important;
-    padding: 10px !important;
+/* 整体容器：弹窗样式 */
+.icon-picker {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 16px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: none;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  overflow: hidden;
+  height: 340px; /* 固定高度，让分页自动推到底部 */
 }
 
-.container li {
-    width: 100% !important;
-    height: 70px !important;
-    margin: 0 !important;
-    padding: 8px !important;
-    border: 1px solid #e4e7ed !important;
-    border-radius: 6px !important;
-    list-style: none !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
+/* 图标网格：自适应填充，分页自动推到底部 */
+.icon-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0;
+  width: 100%;
+  box-sizing: border-box;
+  flex: 1; /* 占满剩余空间 */
+  overflow: hidden;
+  /* 移除边框和阴影，让图标区域和分页无缝衔接 */
+  border: none;
+  border-radius: 0;
+  background: #fff;
 }
 
-.container li:hover {
-    border-color: #e99d53 !important;
+/* 图标卡片：紧凑大小，无多余边框 */
+.icon-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 65px;
+  border-right: 1px solid #f5f5f5;
+  border-bottom: 1px solid #f5f5f5;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-sizing: border-box;
+  background: white;
+  position: relative;
 }
 
-.container li svg {
-    width: 24px !important;
-    height: 24px !important;
-    margin-bottom: 4px !important;
+/* 最后一列移除右侧边框 */
+.icon-card:nth-child(5n) {
+  border-right: none;
 }
 
-.container li span {
-    font-size: 11px !important;
-    color: #666 !important;
+/* 最后一行移除底部边框 */
+.icon-card:nth-last-child(-n+5) {
+  border-bottom: none;
 }
 
-.search-box {
-    text-align: center;
-    margin: 10px 0 20px;
+/* 悬停效果 */
+.icon-card:hover {
+  background: #fffaf5;
+  z-index: 1;
+  box-shadow: 0 2px 8px rgba(233, 157, 83, 0.2);
 }
 
-.search {
-    width: 280px;
+/* 图标样式 */
+.icon-card .el-icon {
+  width: 20px;
+  height: 20px;
+  color: #606266;
+  transition: all 0.2s;
 }
 
+.icon-card:hover .el-icon {
+  transform: scale(1.1);
+  color: #e99d53;
+}
+
+/* 分页区域：固定在底部中间，无阴影 */
+.icon-footer {
+  display: flex;
+  justify-content: center;
+  padding: 6px 0;
+  width: 100%;
+  margin-top: auto; /* 自动推到最底部 */
+  flex-shrink: 0; /* 防止被压缩 */
+  /* 移除可能的阴影 */
+  box-shadow: none;
+}
+
+/* 分页样式 */
 .el-pagination {
-    margin-top: 20px;
-    display: flex;
-    justify-content: center;
+  margin: 0;
+  --el-pagination-button-bg-color: #fff;
+  --el-pagination-bg-color: #fff;
+  --el-pagination-hover-color: #e99d53;
+  /* 移除分页的默认阴影 */
+  box-shadow: none;
 }
 </style>

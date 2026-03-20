@@ -23,3 +23,18 @@ a:hover{
 #nprorogress .bar{ 
 background: #e99d53 !important;
 }
+/* 滚动锁定修复 */
+.el-popup-parent--hidden {
+  overflow: auto !important;
+  padding-right: 0 !important;
+}
+/* 移除遮罩层的变暗效果 */
+.el-overlay {
+  background-color: transparent !important;
+  pointer-events: none !important; /* 允许点击背景 */
+}
+
+/* 但允许点击弹窗关闭 */
+.el-overlay .el-dialog {
+  pointer-events: auto !important;
+}
