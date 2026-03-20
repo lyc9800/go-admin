@@ -67,9 +67,9 @@
             <el-table-column label="操作" width="260">
                 <template #default="scope">
                     <el-button v-if="scope.row.level!=2" color="#e99d53" style="color: white;" size="small" 
-                    @click="addSubMenu(scope.row.level,scope.row.name)"
+                    @click="addSubMenu(scope.row.id,scope.row.name,scope.row.level)"
                     type="primary">新增子级</el-button>
-                    <el-button size="small" @click="editMenu(scope.row.id)">
+                    <el-button size="small" @click="editMenu(scope.row)">
                         <el-icon><Edit/></el-icon>
                         编辑
                     </el-button>
@@ -99,17 +99,30 @@
             </div>
         </template>
         <!-- 新增菜单 start -->
-         <AddMenu @closeAddMenuForm="closeAddMenuForm" @success="success"/>
+         <AddMenu :parentId="parentId" :level="level" @closeAddMenuForm="closeAddMenuForm" @success="success"/>
         <!-- 新增菜单 end -->
     </el-dialog>
     <!--- 新增菜单弹出框 end -->
+
+    <!--- 编辑菜单弹出框 start -->
+    <el-dialog aling-center  v-model="editMenuFormVisible" width="50%" destroy-on-close>
+        <template #header>
+            <div class="my-header">
+                <el-icon size="26px"><EditPen/></el-icon>
+                <h1>编辑菜单</h1>
+            </div>
+        </template>
+        <EditMenu :menuInfo="menuInfo"/>
+    </el-dialog>
+    <!--- 编辑菜单弹出框 end -->
 </template>
 
 <script setup lang="ts">
 import { ref,reactive,toRefs,onMounted } from 'vue'
 import { getMenuListApi } from "@/api/system/menu/menu";
 import AddMenu from './components/AddMenu.vue';
-import { ElMessage } from 'element-plus'
+import EditMenu from './components/EditMenu.vue';
+
 const state = reactive({
     // 搜索关键字
     searchValue:'',
@@ -151,7 +164,30 @@ const success=()=>{
     loadData(state)
     closeAddMenuForm()
 }
-const search = () => {
+// 新增子级菜单
+const parentId=ref()
+const level=ref()
+const addSubMenu = (id:number,name:string,vLevel:number) => {
+    addMenuFormVisible.value = true
+    parentId.value=id
+    level.value=vLevel
+    const menuName=ref('子菜单')
+    if(vLevel===1){
+        menuName.value='按钮'
+    }
+    addTitle.value=`正在为"${name}"新增${menuName.value}`
+
+}
+// 定义编辑菜单弹出框状态
+const editMenuFormVisible = ref(false)
+// 编辑菜单信息
+const menuInfo=ref()
+// 编辑菜单操作函数
+const editMenu = async (row:object) => {
+    menuInfo.value=row
+    editMenuFormVisible.value = true
+}
+/* const search = () => {
     if(state.searchValue!=null&&state.searchValue!=''){
         loadData(state)
         ElMessage({
@@ -159,7 +195,7 @@ const search = () => {
             message:`关键字"${state.searchValue}"搜索内容如下`
         })
     }
-}
+} */
 
 </script>
 

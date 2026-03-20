@@ -13,13 +13,13 @@
                 </el-form-item>
             </el-col>
 
-            <el-col :span="12" v-if="formMenu.level===1">
+            <el-col :span="12" v-if="formMenu.level == 1">
                 <el-form-item label="组件路径">
                     <el-input v-model="formMenu.component_name" placeholder="请输入组件路径"></el-input>
                 </el-form-item>
             </el-col>
 
-            <el-col :span="8">
+            <el-col :span="12">
                 <el-form-item label="菜单图标" prop="web_icon">
                     <el-input v-model="formMenu.web_icon" placeholder="请选择菜单图标" disabled>
                         <template #append>
@@ -54,9 +54,9 @@
             <el-col :span="8">
                 <el-form-item label="菜单等级" prop="level">
                     <el-select v-model="formMenu.level"   placeholder="请输入菜单等级">
-                        <el-option label="目录" :value="0"></el-option>
-                        <el-option label="菜单" :value="1"></el-option>
-                        <el-option label="按钮" :value="2"></el-option>
+                        <el-option label="目录" :disabled="props.level!==null" :value="0"></el-option>
+                        <el-option label="菜单" :disabled="props.level===1" :value="1"></el-option>
+                        <el-option label="按钮" :disabled="props.level!==1" :value="2"></el-option>
                     </el-select>
                 </el-form-item>
             </el-col>
@@ -73,6 +73,10 @@ import { ref, reactive, toRaw, watch ,FormInstance,FormRules} from 'vue'
 import {ElMessage} from 'element-plus'
 import {addMenuApi} from '@/api/system/menu/menu'
 import Icon from './Icon.vue'
+// 定义事件
+const emit = defineEmits(['closeAddMenuForm','success'])
+// 接收父组件传递的参数
+const props=defineProps(['parentId','level'])
 // 表单实例对象
 const ruleFormRef=ref<FormInstance>()
 // 定义约束规则
@@ -91,7 +95,8 @@ const formMenu = reactive({
     component_name: '',
     web_icon: 'Search',
     sort: 0,
-    level: 0,
+    level: '',
+    parent_id: props.parentId,
 })
 // 新增菜单
 const addMenu =async (formEl:FormInstance|undefined) => { 
@@ -112,8 +117,7 @@ const addMenu =async (formEl:FormInstance|undefined) => {
     })
     subLoading.value = false
 }
-// 定义事件
-const emit = defineEmits(['closeAddMenuForm','success'])
+
 const close = () => { 
     emit('closeAddMenuForm')
 }
