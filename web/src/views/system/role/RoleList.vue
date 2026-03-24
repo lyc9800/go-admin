@@ -55,11 +55,14 @@
 
             <el-table-column label="是否管理员">
                 <template #default="scope">
-                    <el-switch v-model="scope.row.is_admin" 
-                    :active-value="1"
-                    :inactive-value="0"
-                    style="--el-switch-on-color:#e99d53"
-                    :before-change="changeIsAdmin.bind(scope,scope.row)"/>
+                    <el-switch
+                        v-model="scope.row.is_admin"
+                        :active-value="1"
+                        :inactive-value="0"
+                        style="--el-switch-on-color:#e99d53"
+                        :before-change="() => handleSwitchChange(scope.row)"
+                        @click="(e) => console.log('🖱️ 开关被点击！', e, scope.row)"
+                        />
                 </template>
             </el-table-column>
 
@@ -138,8 +141,8 @@ import {exportExcel} from '@/utils/exportExcel'
 import {ref,reactive,toRefs,onMounted} from 'vue'
 import {getRoleListApi,delRoleApi,getRoleApi,changeIsAdminApi} from '@/api/system/role/role'
 import {ElMessage,ElMessageBox} from 'element-plus'
-import AddRole from './compentents/AddRole.vue';
-import EditRole from './compentents/EditRole.vue';
+import AddRole from './components/AddRole.vue';
+import EditRole from './components/EditRole.vue';
 
 const state=reactive({
     loading:false,
@@ -254,30 +257,36 @@ const exportExcelAction=()=>{
         autowidth:true,
     })
 }
-const changeIsAdmin= async(row)=>{
-    ElMessageBox.confirm("确定修改当前角色的管理员状态吗？",{
+const handleSwitchChange = async (row) => {
+  console.log('✅ before-change 被调用！row:', row);
+  console.log('✅ is_admin 原始值：', row.is_admin, '类型：', typeof row.is_admin);
+
+  try {
+    const confirmResult = await ElMessageBox.confirm(
+      "确定修改当前角色的管理员状态吗？",
+      {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        cancelButtonClass: 'btnConfirm',
-        autofocus:false
-    }).then(async()=>{
-        const {data}=await changeIsAdminApi(row.id,row.is_admin==1?0:1)
-        if(data.code===200){
-            ElMessage({
-                type:'success',
-                message:'修改成功'
-            })
-             loadData(state)
-        }else{
-            ElMessage({
-                type:'error',
-                message:'修改失败'
-            })
-        }
-    }).catch(()=>{
-        console.log('取消')
-    })
-}
+        // cancelButtonClass: 'btnConfirm', // 👈 先注释掉
+        autofocus: false
+      }
+    );
+
+    console.log('✅ 用户点击了确定');
+    // 继续执行 API 调用
+    const newIsAdmin = row.is_admin === 1 ? 0 : 1;
+    await changeIsAdminApi(row.id, newIsAdmin);
+    row.is_admin = newIsAdmin; // 更新本地数据
+    ElMessage.success('状态已更新');
+  } catch (error) {
+    if (error === 'cancel') {
+      console.log('❌ 用户取消了操作');
+    } else {
+      console.error('⚠️ 其他错误：', error);
+    }
+  }
+};
+
 </script>
 
 <style  scoped>

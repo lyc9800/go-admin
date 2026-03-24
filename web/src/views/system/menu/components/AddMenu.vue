@@ -51,12 +51,27 @@
                 </el-form-item>
             </el-col>
 
-            <el-col :span="8">
-                <el-form-item label="菜单等级" prop="level">
-                    <el-select v-model="formMenu.level"   placeholder="请输入菜单等级">
-                        <el-option label="目录" :disabled="props.level!==null" :value="0"></el-option>
-                        <el-option label="菜单" :disabled="props.level===1" :value="1"></el-option>
-                        <el-option label="按钮" :disabled="props.level!==1" :value="2"></el-option>
+           <el-col :span="8">
+                <el-form-item label="菜单类型" prop="level">
+                    <el-select v-model="formMenu.level" placeholder="请选择菜单类型">
+                        <!-- 目录：顶级或子级都能选，但顶级时 level=0，子级时 level=0 或 1 -->
+                        <el-option 
+                            label="目录" 
+                            :disabled="props.parentId != null && props.level === 1" 
+                            :value="0">
+                        </el-option>
+                        <!-- 菜单：顶级时能选，子级时只能从 level=0 的目录下选 -->
+                        <el-option 
+                            label="菜单" 
+                            :disabled="props.parentId == null && props.menuType === 'catalog'" 
+                            :value="1">
+                        </el-option>
+                        <!-- 按钮：只能从 level=1 的菜单下选 -->
+                        <el-option 
+                            label="按钮" 
+                            :disabled="props.parentId == null || props.level !== 1" 
+                            :value="2">
+                        </el-option>
                     </el-select>
                 </el-form-item>
             </el-col>
@@ -89,22 +104,23 @@ const rules=reactive({
 })
 // 定义按钮状态
 const subLoading = ref(false)
-const formMenu = reactive({
-    name: '',
-    path: '',
-    component_name: '',
-    web_icon: 'Search',
-    sort: 0,
-    level: '',
-    parent_id: props.parentId,
+const formMenu = ref({
+  name: '',
+  path: '',
+  component_name: '',
+  web_icon: 'Search',
+  sort: 0,
+  level: 0,
+  parent_id: null as number | null,
 })
+
 // 新增菜单
 const addMenu =async (formEl:FormInstance|undefined) => { 
     if(!formEl) return
     await formEl.validate(async(valid) => { 
         subLoading.value = true
         if(valid){ 
-            const {data} = await addMenuApi(formMenu)
+            const { data } = await addMenuApi(toRaw(formMenu.value))
             if(data.code === 200){ 
                     ElMessage.success(data.msg)
                     emit('success')
@@ -128,6 +144,23 @@ const onChangeIcon = (val:any) => {
     formMenu.web_icon = val
     selectIconVisible.value = false
 }
+// 监听父组件传参变化，重置表单
+watch(
+  () => [props.parentId, props.level],
+  ([newParentId, newLevel]) => {
+    // 每次都创建全新的对象，彻底清除旧状态
+    formMenu.value = {
+      name: '',
+      path: '',
+      component_name: '',
+      web_icon: 'Search',
+      sort: 0,
+      level: newParentId == null ? 0 : newLevel + 1,
+      parent_id: newParentId ?? null,
+    }
+  },
+  { immediate: true }
+)
 
 </script>
 

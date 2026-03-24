@@ -105,23 +105,26 @@
     <!--- 新增菜单弹出框 end -->
 
     <!--- 编辑菜单弹出框 start -->
-    <el-dialog aling-center  v-model="editMenuFormVisible" width="50%" destroy-on-close>
+    <el-dialog align-center  v-model="editMenuFormVisible" width="50%" destroy-on-close>
         <template #header>
             <div class="my-header">
                 <el-icon size="26px"><EditPen/></el-icon>
                 <h1>编辑菜单</h1>
             </div>
         </template>
-        <EditMenu :menuInfo="menuInfo"/>
+        <!-- 编辑菜单 start -->
+        <EditMenu :menuInfo="menuInfo" @closeEditMenuForm="closeEditMenuForm" @success="success"/>
+        <!-- 编辑菜单 end -->
     </el-dialog>
     <!--- 编辑菜单弹出框 end -->
 </template>
 
 <script setup lang="ts">
 import { ref,reactive,toRefs,onMounted } from 'vue'
-import { getMenuListApi } from "@/api/system/menu/menu";
+import { getMenuListApi,delMenuApi } from "@/api/system/menu/menu";
 import AddMenu from './components/AddMenu.vue';
 import EditMenu from './components/EditMenu.vue';
+import { ElMessage } from 'element-plus'
 
 const state = reactive({
     // 搜索关键字
@@ -163,6 +166,7 @@ const closeAddMenuForm = () => {
 const success=()=>{
     loadData(state)
     closeAddMenuForm()
+    closeEditMenuForm()
 }
 // 新增子级菜单
 const parentId=ref()
@@ -186,6 +190,25 @@ const menuInfo=ref()
 const editMenu = async (row:object) => {
     menuInfo.value=row
     editMenuFormVisible.value = true
+}
+const closeEditMenuForm = () => {
+    editMenuFormVisible.value = false
+}
+// 删除菜单
+const delMenu = async (id:number) => {
+    const { data } = await delMenuApi(id)
+    if(data.code==200){
+        ElMessage({
+            type:'success',
+            message:"删除成功"
+        })
+        await loadData(state)
+    }else{
+        ElMessage({
+            type:'error',
+            message:"删除失败"
+        })
+    }
 }
 /* const search = () => {
     if(state.searchValue!=null&&state.searchValue!=''){

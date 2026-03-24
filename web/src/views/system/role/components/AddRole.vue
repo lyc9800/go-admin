@@ -19,6 +19,24 @@
                     style="--el-switch-on-color:#e99d53"/>
                 </el-form-item>
             </el-col>
+
+            <el-col :span="24">
+                <el-form-item label="分配菜单">
+                    <el-tree
+                    ref="treeRef"
+                    :data="menus"
+                    :props="treeProps"
+                    multiple
+                    :render-after-expand="false"
+                    node-key="id"
+                    show-checkbox
+                    :default-checked-keys="formRole.menuId"
+                    check-on-click-node
+                    style="display: block;width: 100%;"/>
+                </el-form-item>
+            </el-col>
+
+
             <el-col :span="24">
                 <el-form-item label="角色描述">
                     <el-input type="textarea"  :rows="2" v-model="formRole.remarks" placeholder="请输入角色描述"/>
@@ -33,9 +51,11 @@
 </template>
 
 <script setup lang="ts">
-import  {ref,reactive} from "vue"
+import  {ref,reactive,onMounted} from "vue"
 import {ElMessage,FormInstance,FormRules} from "element-plus"
+import type {ElTree} from "element-plus"
 import {addRoleApi} from "@/api/system/role/role"
+import { getMenuListApi } from "@/api/system/menu/menu" 
 // 表单实例对象
 const ruleFormRef = ref<FormInstance>()
 const rules = reactive<FormRules>({
@@ -49,13 +69,16 @@ const formRole = reactive({
     name: '',
     sort: 0,
     is_admin: 0,
-    remarks: ''
+    remarks: '',
+    menuId: []
 })
 const addRole=async(formEl:FormInstance|undefined)=>{ 
     if(!formEl) return
     await formEl.validate(async(valid) => {
         subLoading.value=true
         if(valid){
+            formRole.menuId = treeRef.value!.getCheckedKeys(false)
+            console.log('提交的数据:', JSON.parse(JSON.stringify(formRole)))  // ✅ 打印
             const {data} = await addRoleApi(formRole)
             if(data.code===200){
                 ElMessage.success(data.msg)
@@ -73,7 +96,20 @@ const emit=defineEmits(['closeAddRoleForm', 'success'])
 const close=()=>{
     emit('closeAddRoleForm')
 }
-
+// 树形菜单对象
+const treeRef = ref<InstanceType<typeof ElTree>>()
+const menus = ref()
+const treeProps = { 
+    children: 'sub_menus',
+    label: 'name'
+}
+const menuList = async () => {
+    const { data } = await getMenuListApi()
+    menus.value = data.result
+}
+onMounted(() => {
+    menuList()
+})
 </script>
 
 <style  scoped>

@@ -16,3 +16,18 @@ export function addMenuApi(data:object){
         data
     })
 }
+// 编辑菜单
+export function editMenuApi(data:object){
+    return request({
+        url:'menu',
+        method:'put',
+        data
+    })
+}
+// 删除菜单
+export function delMenuApi(id:number){
+    return request({
+        url:`menu/${id}`,
+        method:'delete',
+    })
+}

@@ -15,11 +15,14 @@ var (
 	RefreshTokenExpire = time.Now().Add(time.Second * 3600 * 24 * 14).Unix()
 	// 默认分页显示的条数
 	DefaultSize = 10
+	// 头像保存目录
+	StaticResource = "static/resource"
 )
 
 type UserClaim struct {
 	Id      uint
 	Name    string
-	IsAdmin int8 // 是否为管理员
+	IsAdmin bool // 是否为管理员
+	RoleId  uint
 	jwt.RegisteredClaims
 }

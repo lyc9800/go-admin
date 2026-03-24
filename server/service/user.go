@@ -68,6 +68,7 @@ func AddUSer(c *gin.Context) {
 		Phone:    in.Phone,
 		Remarks:  in.Remarks,
 		UserName: in.Username,
+		RoleId:   in.RoleId,
 	}).Error
 	if err != nil {
 		c.JSON(http.StatusConflict, gin.H{
@@ -108,7 +109,8 @@ func GetUserDetail(c *gin.Context) {
 	data.Phone = sysUser.Phone
 	data.Username = sysUser.UserName
 	data.Email = sysUser.Email
-	// data.Password = sysUser.Password
+	data.RoleId = sysUser.RoleId
+	data.Password = sysUser.Password
 	c.JSON(http.StatusOK, gin.H{
 		"code":   200,
 		"msg":    "获取数据成功",
@@ -143,6 +145,7 @@ func UpdateUser(c *gin.Context) {
 		"phone":    in.Phone,
 		"email":    in.Email,
 		"remarks":  in.Remarks,
+		"role_id":  in.RoleId,
 	}).Error
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{

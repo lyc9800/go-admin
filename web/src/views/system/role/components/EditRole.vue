@@ -21,6 +21,22 @@
             </el-col>
 
             <el-col :span="24">
+                <el-form-item label="分配菜单">
+                    <el-tree
+                    ref="treeRef"
+                    :data="menus"
+                    :props="treeProps"
+                    multiple
+                    :render-after-expand="false"
+                    node-key="id"
+                    show-checkbox
+                    :default-checked-keys="formRole.menuId"
+                    check-on-click-node
+                    style="display: block;width: 100%;"/>
+                </el-form-item>
+            </el-col>
+
+            <el-col :span="24">
                 <el-form-item label="角色备注">
                     <el-input v-model="formRole.remarks" type="textarea" :rows="2" placeholder="请输入角色备注"/>
                 </el-form-item>
@@ -34,9 +50,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive,onMounted } from 'vue'
 import { editRoleApi } from '@/api/system/role/role'
 import { ElMessage,FormInstance,FormRules } from 'element-plus'
+import type {ElTree} from "element-plus"
+import { getMenuListApi } from "@/api/system/menu/menu" 
 // 获取父组件传递的参数
 const props = defineProps(['roleInfo'])
 const emit = defineEmits(['closeEditRoleForm','success'])
@@ -48,7 +66,8 @@ const formRole = reactive({
     name: '',
     sort: 0,
     is_admin: 0,
-    remarks: ''
+    remarks: '',
+    menuId: []
 }) 
 // 给表单填充数据
 for (const key in formRole) {
@@ -60,6 +79,7 @@ const editRole = async(formEl:FormInstance|undefined) => {
     await formEl.validate(async(valid) => {
         subLoading.value = true
         if(valid) {
+            formRole.menuId = treeRef.value!.getCheckedKeys(false)
             const {data} =await editRoleApi(formRole)
             if (data.code === 200) {
                 ElMessage.success(data.msg)
@@ -89,7 +109,20 @@ const rules = reactive<FormRules>({
         { required: true, message: '请输入角色排序', trigger: 'blur' },
     ]
 })
-
+// 树形菜单对象
+const treeRef = ref<InstanceType<typeof ElTree>>()
+const menus = ref()
+const treeProps = { 
+    children: 'sub_menus',
+    label: 'name'
+}
+const menuList = async () => {
+    const { data } = await getMenuListApi()
+    menus.value = data.result
+}
+onMounted(() => {
+    menuList()
+})
 </script>
 
 <style  scoped>

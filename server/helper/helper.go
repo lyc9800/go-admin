@@ -1,6 +1,7 @@
 package helper
 
 import (
+	"errors"
 	"server/define"
 	"time"
 
@@ -8,10 +9,11 @@ import (
 )
 
 // 生成token
-func GenerateToken(id uint, name string, expireAt int64) (string, error) {
+func GenerateToken(id uint, roleId uint, name string, expireAt int64) (string, error) {
 	uc := define.UserClaim{
-		Id:   id,
-		Name: name,
+		Id:     id,
+		Name:   name,
+		RoleId: roleId,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Unix(expireAt, 0)),
 		},
@@ -22,4 +24,18 @@ func GenerateToken(id uint, name string, expireAt int64) (string, error) {
 		return "", err
 	}
 	return tokenString, nil
+}
+
+func AnalyzeToken(token string) (*define.UserClaim, error) {
+	uc := new(define.UserClaim)
+	claims, err := jwt.ParseWithClaims(token, uc, func(token *jwt.Token) (interface{}, error) {
+		return []byte(define.Jwtkey), nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	if !claims.Valid {
+		return uc, errors.New("token不正确")
+	}
+	return uc, nil
 }

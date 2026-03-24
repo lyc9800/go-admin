@@ -8,7 +8,7 @@ export const useUserStore = defineStore("userStore", {
         // 登陆用户信息
         userInfo: {
             avatar: '',
-            nickName: '',
+            userName: '',
             sex: '',
         },
         // 角色

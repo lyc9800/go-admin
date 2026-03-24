@@ -56,7 +56,7 @@
                             :content="scope.row.avatar" placement="top"
                             effect="light">
                             <img :src="url+'uploadFile/'+scope.row.avatar"
-                                style="width: 64px;height: 40px;" alt>
+                                style="width: 64px;height: 40px;">
                         </el-tooltip>
                         <el-tag type="warning" v-else>未上传</el-tag>
                     </template>
@@ -147,8 +147,8 @@ import { ref ,reactive,toRefs,onMounted} from 'vue'
 import { getUserListApi,getUserApi,delUserApi } from '@/api/system/user/user'
 import { formatTime} from '@/utils/date'
 import {ElMessage} from 'element-plus'
-import  Adduser from './compentents/AddUser.vue'
-import EditUser from './compentents/EditUser.vue'
+import  Adduser from './components/AddUser.vue'
+import EditUser from './components/EditUser.vue'
 import { exportExcel } from '@/utils/exportExcel'
 const state = reactive({
     // 搜索关键字

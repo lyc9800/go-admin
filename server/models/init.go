@@ -21,7 +21,7 @@ func NewGormDB() {
 		panic(err)
 	}
 	// 自动建表
-	err = db.AutoMigrate(&SysUser{}, &SysRole{}, &SysMenu{})
+	err = db.AutoMigrate(&SysUser{}, &SysRole{}, &SysMenu{}, &RoleMenu{})
 	// 将连接返回的局部变量db赋值给全局DB变量，方便其他package引用
 	DB = db
 }

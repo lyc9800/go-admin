@@ -1,11 +1,13 @@
 package service
 
 import (
+	"log"
 	"net/http"
 	"server/models"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 // 获取角色函数
@@ -52,6 +54,7 @@ func AddRole(c *gin.Context) {
 		})
 		return
 	}
+	log.Printf("收到角色菜单 ID: %v, 长度: %d", in.MenuId, len(in.MenuId))
 	var cnt int64
 	err = models.DB.Model(&models.SysRole{}).Where("name = ?", in.Name).Count(&cnt).Error
 	if err != nil {
@@ -68,12 +71,34 @@ func AddRole(c *gin.Context) {
 		})
 		return
 	}
-	err = models.DB.Create(&models.SysRole{
+	rms := make([]*models.RoleMenu, len(in.MenuId))
+	for i, _ := range rms {
+		rms[i] = &models.RoleMenu{
+			MenuId: in.MenuId[i],
+		}
+	}
+
+	rb := &models.SysRole{
+		IsAdmin: in.IsAdmin,
 		Name:    in.Name,
 		Remarks: in.Remarks,
 		Sort:    in.Sort,
-		IsAdmin: in.IsAdmin,
-	}).Error
+	}
+	err = models.DB.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(rb).Error; err != nil {
+			return err
+		}
+		for _, v := range rms {
+			v.RoleId = rb.ID
+		}
+		if len(rms) > 0 {
+			err = tx.Create(rms).Error
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	})
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"code": -1,
@@ -112,6 +137,17 @@ func GetRoleDetail(c *gin.Context) {
 	data.Remarks = sysRole.Remarks
 	data.Sort = sysRole.Sort
 	data.IsAdmin = sysRole.IsAdmin
+
+	menuIds, err := models.GetRoleMenuId(sysRole.ID, sysRole.IsAdmin == 1)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"code":   -1,
+			"msg":    "获取数据失败",
+			"result": data,
+		})
+		return
+	}
+	data.MenuId = menuIds
 	c.JSON(http.StatusOK, gin.H{
 		"code":   200,
 		"msg":    "获取角色信息成功",
@@ -130,6 +166,7 @@ func UpdateRole(c *gin.Context) {
 		})
 		return
 	}
+
 	var cnt int64
 	err = models.DB.Model(&models.SysRole{}).Where("id != ? and name=?", in.ID, in.Name).Count(&cnt).Error
 	if err != nil {
@@ -146,12 +183,38 @@ func UpdateRole(c *gin.Context) {
 		})
 		return
 	}
-	err = models.DB.Model(&models.SysRole{}).Where("id=?", in.ID).Updates(map[string]any{
-		"name":     in.Name,
-		"remarks":  in.Remarks,
-		"sort":     in.Sort,
-		"is_admin": in.IsAdmin,
-	}).Error
+
+	err = models.DB.Transaction(func(tx *gorm.DB) error {
+		err = models.DB.Model(&models.SysRole{}).Where("id=?", in.ID).Updates(map[string]any{
+			"name":     in.Name,
+			"remarks":  in.Remarks,
+			"sort":     in.Sort,
+			"is_admin": in.IsAdmin,
+		}).Error
+		if err != nil {
+			return err
+		}
+		// 删除旧数据
+		err = tx.Where("role_id=?", in.ID).Unscoped().Delete(new(models.RoleMenu)).Error
+		if err != nil {
+			return err
+		}
+		// 增加新授权的数据
+		rms := make([]*models.RoleMenu, len(in.MenuId))
+		for i, _ := range rms {
+			rms[i] = &models.RoleMenu{
+				MenuId: in.MenuId[i],
+				RoleId: in.ID,
+			}
+		}
+		if len(rms) > 0 {
+			err = tx.Create(rms).Error
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	})
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"code": -1,
@@ -213,5 +276,23 @@ func UpdateRoleStatus(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code": 200,
 		"msg":  "修改成功",
+	})
+}
+
+// 获取所有角色
+func AllRole(c *gin.Context) {
+	list := make([]*AllRoleListReply, 0)
+	err := models.DB.Model(models.SysRole{}).Find(&list).Error
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"code": -1,
+			"msg":  "数据库异常",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code":   200,
+		"msg":    "加载数据成功",
+		"result": list,
 	})
 }

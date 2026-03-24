@@ -10,8 +10,9 @@
           <!-- 用户头像 start-->
             <template #reference>
               <el-link :underline="false">
-                <img src="@/assets/user.jpg" style="width:40px;border-radius: 50px;">
-                <span>Admin</span>
+                <img v-if="userInfo.avatar" :src="url+'uploadFile+/'+userInfo.avatar" style="width:40px;border-radius: 50px;">
+                <img v-else src="@/assets/default.png" style="width:40px;border-radius: 50px;">
+                <span>{{userInfo.userName}}</span>
               </el-link>
             </template>
           <!-- 用户头像 end-->
@@ -60,6 +61,10 @@ import { SwitchButton } from '@element-plus/icons-vue'
 import CollapseIcon from './CollapseIcon.vue';
 import Hamburger from './Hamburger.vue';
 import TabsView from '@/views/system/layout/tags/Index.vue';
+import { useUserStore } from '@/store/modules/user'
+
+// 获取登陆用户信息
+const {userInfo}=useUserStore()
 // 退出系统
 const exit =()=>{
   // 清除用户登陆信息
@@ -68,6 +73,8 @@ const exit =()=>{
   window.localStorage.removeItem("menuState")
   window.location.href='/'
 }
+// 服务器路径
+const url=import.meta.env.VITE_BASE_URL
 </script>
 
 <style  scoped>

@@ -11,14 +11,25 @@
                     <el-input v-model="formUser.password" placeholder="请输入密码"></el-input>
                 </el-form-item>
             </el-col>
-            <el-col :span="12">
+            <el-col :span="8">
                 <el-form-item label="手机号" prop="phone">
                     <el-input v-model="formUser.phone" placeholder="请输入手机号码"></el-input>
                 </el-form-item>
             </el-col>
-            <el-col :span="12">
+            
+            <el-col :span="8">
                 <el-form-item label="邮箱" prop="email">
                     <el-input v-model="formUser.email" placeholder="请输入邮箱地址"></el-input>
+                </el-form-item>
+            </el-col>
+            <el-col :span="8">
+                <el-form-item label="角色" prop="roelId">
+                    <el-select v-model="formUser.roleId" style=" width:100%" placeholder="请选择角色">
+                        <el-option v-for="item in roleOptions"
+                        :key="item.id"
+                        :label="item.name"
+                        :value="item.id"/>
+                    </el-select>
                 </el-form-item>
             </el-col>
             <el-col :span="24">
@@ -36,8 +47,8 @@
 
 <script lang='ts' setup>
 import { ElMessage,FormInstance,FormRules } from 'element-plus'
-import {ref,reactive} from 'vue'
-import { addUserApi } from '@/api/system/user/user'
+import {ref,reactive,onMounted} from 'vue'
+import { addUserApi,getAllRoleListAPi } from '@/api/system/user/user'
 
 // 按钮状态
 const subLoading = ref(false)
@@ -48,6 +59,7 @@ const formUser = reactive({
     phone: '',
     remarks: '',
     email: '',
+    roleId: '',
 })
 // 表单验证规则
 const ruleFormRef  = ref<FormInstance>()
@@ -56,6 +68,7 @@ const rules=reactive<FormRules>({
     password: [{ required: true, message: '密码不能为空', trigger: 'blur' },],
     phone: [{ required: true, message: '手机号不能为空', trigger: 'blur' },],
     email: [{ required: true, message: '邮箱不能为空', trigger: 'blur' },],
+    roleId: [{ required: true, message: '角色不能为空', trigger: 'blur' },],
 })
 // 添加用户
 const addUser= async(formEl:FormInstance|undefined)=>{
@@ -85,6 +98,14 @@ const emit =defineEmits(['closeAdduserForm','success'])
 const close=()=>{
     emit('closeAdduserForm')
 }
+const roleOptions=ref<object[]>([])
+const getAllRoleList=async()=>{
+    const {data}=await getAllRoleListAPi()
+        roleOptions.value = data.result || []
+}
+onMounted(()=>{ 
+    getAllRoleList()
+})
 </script>
 
 <style scoped>

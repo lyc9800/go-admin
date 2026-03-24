@@ -43,6 +43,7 @@ type AddUserRequest struct {
 	Phone    string `json:"phone"`
 	Email    string `json:"email"`
 	Remarks  string `json:"remarks"`
+	RoleId   uint   `json:"roleId"`
 }
 
 // 返回用户详细信息结构体
@@ -73,12 +74,19 @@ type GetRoleListReply struct {
 	Remarks   string `json:"remarks"`
 }
 
+// 返回角色数据的结构体
+type AllRoleListReply struct {
+	ID   uint   `json:"id"`
+	Name string `json:"name"`
+}
+
 // 添加角色参数结构体
 type AddRoleRequest struct {
 	Name    string `json:"name"`
 	Sort    int64  `json:"sort"`
 	IsAdmin int8   `json:"is_admin"`
 	Remarks string `json:"remarks"`
+	MenuId  []uint `json:"menuId"`
 }
 
 // 返回角色信息结构体
@@ -127,4 +135,10 @@ type AddMenuRequest struct {
 	Path          string `json:"path"`           // 路径
 	Level         uint   `json:"level"`          // 菜单等级 {0: 目录, 1: 菜单, 3: 按钮}
 	ComponentName string `json:"component_name"` // 组件路径
+}
+
+// 修改菜单参数结构体
+type UpdateMenuRequest struct {
+	ID uint `json:"id"`
+	AddMenuRequest
 }

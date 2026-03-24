@@ -13,6 +13,7 @@ type SysUser struct {
 	Sex       string `gorm:"column:sex;type:varchar(10)" json:"sex"`
 	Email     string `gorm:"column:email;type:varchar(255)" json:"email"`
 	Remarks   string `gorm:"column:remarks;type:varchar(255)" json:"remarks"`
+	RoleId    uint   `gorm:"column:role_id;type:int(11)" json:"roleId"`
 }
 
 // 设置表名称

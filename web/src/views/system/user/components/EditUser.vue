@@ -11,16 +11,28 @@
                     <el-input v-model="formUser.password" placeholder="请输入密码"></el-input>
                 </el-form-item>
             </el-col>
-            <el-col :span="12">
+            <el-col :span="8">
                 <el-form-item label="手机号"  prop="phone">
                     <el-input v-model="formUser.phone" placeholder="请输入手机号"></el-input>
                 </el-form-item>
             </el-col>
-            <el-col :span="12">
+            <el-col :span="8">
                 <el-form-item label="邮箱"  prop="email">
                     <el-input v-model="formUser.email" placeholder="请输入邮箱"></el-input>
                 </el-form-item>
             </el-col>
+
+            <el-col :span="8">
+                <el-form-item label="角色" prop="roleId">
+                    <el-select v-model="formUser.roleId" style=" width:100%" placeholder="请选择角色">
+                        <el-option v-for="item in roleOptions"
+                        :key="item.id"
+                        :label="item.name"
+                        :value="item.id"/>
+                    </el-select>
+                </el-form-item>
+            </el-col>
+
             <el-col :span="24">
                 <el-form-item label="备注">
                     <el-input type="textarea" :rows="2" v-model="formUser.remarks" placeholder="请输入备注"></el-input>
@@ -36,8 +48,8 @@
 
 <script setup lang="ts">
 import { ElMessage,FormInstance,FormRules } from 'element-plus'
-import {ref, reactive} from 'vue'
-import {editUserApi} from '@/api/system/user/user'
+import {ref, reactive,onMounted} from 'vue'
+import {editUserApi,getAllRoleListAPi} from '@/api/system/user/user'
 // 按钮状态
 const subLoading = ref(false)
 // 表单数据对象
@@ -47,7 +59,8 @@ const formUser = reactive({
     password: '',
     phone: '',
     email: '',
-    remarks: ''
+    remarks: '',
+    roleId:'',
 })
 // 获取父组件UserList组件的属性
 const props=defineProps(['userInfo'])
@@ -74,7 +87,8 @@ const rules=reactive<FormRules>({
     email: [
         { required: true, message: '请输入邮箱', trigger: 'blur' },
         { type: 'email', message: '请输入正确的邮箱地址', trigger: ['blur', 'change'] }
-    ]
+    ],
+    roleId: [{ required: true, message: '角色不能为空', trigger: 'blur' },],
 })
 
 // 更新用户信息
@@ -102,6 +116,14 @@ const emit=defineEmits(['closeEditUserForm','success'])
 const close=()=>{
     emit('closeEditUserForm')
 }
+const roleOptions=ref<object[]>([])
+const getAllRoleList=async()=>{
+    const {data}=await getAllRoleListAPi()
+        roleOptions.value = data.result || []
+}
+onMounted(()=>{ 
+    getAllRoleList()
+})
 </script>
 
 <style  scoped>

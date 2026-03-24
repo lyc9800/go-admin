@@ -35,7 +35,7 @@ const routes = [
                 component: () => import('@/views/system/home/Index.vue')
             }
         ]
-    }
+    },
 ]
 
 // 3.创建路由实例并传递'routes'配置

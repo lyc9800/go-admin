@@ -38,3 +38,10 @@ export function delUserApi(id:number){
         method:'delete',
     })
 }
+// 获取角色列表
+export function getAllRoleListAPi() {
+    return request({
+        url: 'role/all',
+        method: 'get',
+    })
+}

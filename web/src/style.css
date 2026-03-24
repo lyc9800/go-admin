@@ -31,10 +31,9 @@ background: #e99d53 !important;
 /* 移除遮罩层的变暗效果 */
 .el-overlay {
   background-color: transparent !important;
-  pointer-events: none !important; /* 允许点击背景 */
 }
 
-/* 但允许点击弹窗关闭 */
+.el-overlay .el-message-box,
 .el-overlay .el-dialog {
   pointer-events: auto !important;
 }
