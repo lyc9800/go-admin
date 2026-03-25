@@ -10,7 +10,7 @@
           <!-- 用户头像 start-->
             <template #reference>
               <el-link :underline="false">
-                <img v-if="userInfo.avatar" :src="url+'uploadFile+/'+userInfo.avatar" style="width:40px;border-radius: 50px;">
+                <img v-if="userInfo.avatar" :src="url+'uploadFile/'+userInfo.avatar" style="width:40px;border-radius: 50px;">
                 <img v-else src="@/assets/default.png" style="width:40px;border-radius: 50px;">
                 <span>{{userInfo.userName}}</span>
               </el-link>
@@ -21,15 +21,16 @@
               <div style="display:flex;gap:16px;flex-direction: column;">
                 <div class="info-card">
                   <!-- 用户头像 start-->
-                   <img src="@/assets/user.jpg">
-                   <p>用户名：Admin</p>
-                   <p>Email：111@qq.com</p>
-                   <p>注册时间：2026-03-10</p>
+                   <img v-if="userInfo.avatar" :src="url+'uploadFile/'+userInfo.avatar">
+                   <img v-else src="@/assets/default.png">
+                   <p>用户名:{{ userInfo.userName }}</p>
+                   <p>Email:{{ userInfo.email }}</p>
+                   <p>注册时间:{{ formatTime(userInfo.CreatedAt,'yyyy-MM-dd') }}</p>
+                   <p>注册天数:{{ calculateDays(userInfo.CreatedAt) }}天</p>
                   <!-- 用户头像 end-->
                 </div>
                 <div class="info-card-desc" style="margin: 0;">
                     <div style="float:left;width: 75px;padding: 10px;border-right: 1px;text-align: center;">
-                      <p>待定内容</p>
                     </div>
                 </div>
               </div>
@@ -62,9 +63,11 @@ import CollapseIcon from './CollapseIcon.vue';
 import Hamburger from './Hamburger.vue';
 import TabsView from '@/views/system/layout/tags/Index.vue';
 import { useUserStore } from '@/store/modules/user'
+import { formatTime,calculateDays } from '@/utils/date';
 
 // 获取登陆用户信息
 const {userInfo}=useUserStore()
+console.log('当前 userInfo 对象:', userInfo)
 // 退出系统
 const exit =()=>{
   // 清除用户登陆信息

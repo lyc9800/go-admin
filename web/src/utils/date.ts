@@ -50,3 +50,13 @@ export function formatTime(time: any, fmt: string): string {
     
     return fmt
 }
+
+// 计算天数
+export function calculateDays(time:any){
+    if(!time) return
+    else {
+        let day=Math.floor(new Date().getTime()/1000)-(new Date(time).getTime()/1000)
+        let day2=Math.floor(day/(24*60*60))
+        return day2
+    }
+}

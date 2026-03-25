@@ -3,7 +3,7 @@
     <!-- 欢迎区域 -->
     <el-row :gutter="16" class="welcome-section">
       <el-col :span="16">
-        <h2>👋 欢迎回来，Admin</h2>
+        <h2>👋 欢迎回来，{{ userInfo.userName }}</h2>
         <p class="subtitle">今天是 {{ currentDate }}，系统运行正常</p>
       </el-col>
       <el-col :span="8" class="text-right">
@@ -85,7 +85,8 @@ import {
   Setting
 } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
-
+import { useUserStore } from '@/store/modules/user'
+const {userInfo}=useUserStore()
 const router = useRouter()
 
 // 当前日期

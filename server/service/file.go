@@ -46,7 +46,7 @@ func UploadFile(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"code":     200,
-		"mgs":      "上传成功",
+		"msg":      "上传成功",
 		"fileName": fileName,
 	})
 }

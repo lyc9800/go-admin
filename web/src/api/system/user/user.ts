@@ -45,3 +45,21 @@ export function getAllRoleListAPi() {
         method: 'get',
     })
 }
+// 修改用户信息
+export function updateUserInfoApi(data:object){
+    return request({
+        url: 'user/info',
+        method: 'put',
+        data
+    })
+}
+// 发送邮箱验证码
+export function sendEmailApi(email:string){
+    return request({
+        url: 'user/sendemail',
+        method: 'get',
+        params: {
+            email: email
+        }
+    })
+}

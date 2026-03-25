@@ -13,7 +13,7 @@
                     <el-row :gutter="20">
                         <!-- 用户昵称 start -->
                          <el-col :span="8">
-                            <el-form-item label="用户账号" prop="userName" style="width:100%">
+                            <el-form-item label="用户账号" style="width:100%">
                                 <el-input v-model="basic.userName" disabled></el-input>
                             </el-form-item>
                          </el-col>
@@ -28,11 +28,11 @@
                          <!-- 性别 end -->
                          <!--头像--> 
                          <el-col :span="5">
-                            <el-form-item label="头像" style="margin: auto;">
+                            <el-form-item label="头像" style="margin: auto;" prop="avatar">
                                 <el-upload class="avatar-uploader" :action="uploadURL" :headers="headerObj"  
                                 name="fileResource" :show-file-list="false" :on-success="handlerAvatarSuccess">
                                     <img v-if="basic.avatar" :src="url+'uploadFile/'+basic.avatar" style="width:50px;border-radius: 50px;">
-                                    <img v-else src="@/assets/default.png" style="width: 50px;border-radius: 50px;"/>
+                                    <img v-else src="@/assets/default.png" style="width: 50px; height: 50px;object-fit: cover;border-radius: 50%;"/>
                                     <span style="margin-left: 10px;font-size: 10px;text-decoration: underline;line-height: 20px;">点击更换</span>
                                 </el-upload>
                             </el-form-item>
@@ -40,7 +40,7 @@
                          <!-- 提交按钮 -->
                          <el-col :span="3">
                             <el-form-item>
-                                <el-button plain color="#2fa7b9" style="margin-left: 50px;">保存</el-button>
+                                <el-button plain color="#2fa7b9" style="margin-left: 50px;" :loading="loading" @click="onBasicSubmit(basicFormRef)">保存</el-button>
                             </el-form-item>
                          </el-col>
                     </el-row>
@@ -49,6 +49,7 @@
             <!-- 基本信息 end -->
              <el-divider border-style="dashed"/>
              <!-- 绑定邮箱 start -->
+              <BindEmail/>
              <!-- 绑定邮箱 end -->
              <!-- 修改密码 start -->
              <!-- 修改密码 end -->
@@ -64,14 +65,27 @@
 </template>
 
 <script setup lang="ts">
-import { ref,reactive,toRefs } from 'vue'
+import { ref,reactive,toRefs,onMounted } from 'vue'
 import { useUserStore } from '@/store/modules/user'
+import {FormRules,FormInstance,ElMessage} from 'element-plus'
+import {updateUserInfoApi} from '@/api/system/user/user'
+import BindEmail from './BindEmail.vue'
+const basicFormRef=ref<FormInstance>()
+const loading=ref(false)
 const  state=reactive({
     basic:{
-        userName:'',
         sex:'',
-        avatar:''
+        avatar:'',
+        userName:''
     },
+})
+const basicRules=reactive<FormRules>({
+    sex: [
+        { required: true, message: '请选择性别', trigger: 'blur' }
+    ],
+    avatar: [
+        { required: true, message: '请上传头像', trigger: 'blur' }
+    ]
 })
 // 服务器路径
 const url=import.meta.env.VITE_BASE_URL
@@ -88,6 +102,34 @@ const handlerAvatarSuccess=(res)=>{
     }
 }
 const {basic} = toRefs(state)
+// 提交函数
+const onBasicSubmit=(formEl: FormInstance | undefined )=>{
+    if(!formEl) return
+ 
+    formEl.validate(async(valid) => {
+                    loading.value=true   
+        if(valid){
+            const {data} = await updateUserInfoApi({...state.basic})
+            if(data.code==200){
+                userStore.setUserInfo({
+                    sex:state.basic.sex,
+                    avatar:state.basic.avatar
+                })
+                ElMessage.success("信息修改成功")
+            }else{
+                ElMessage.error("信息修改失败")
+            }
+        }else{
+            ElMessage.error("提交失败，请检查表单")
+        }
+        loading.value=false
+    })
+}
+onMounted(()=>{
+    state.basic.userName =userStore.userInfo.userName
+    state.basic.sex =userStore.userInfo.sex
+    state.basic.avatar =userStore.userInfo.avatar
+})
 </script>
 
 <style  scoped>

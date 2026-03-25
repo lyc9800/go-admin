@@ -16,7 +16,12 @@ var (
 	// 默认分页显示的条数
 	DefaultSize = 10
 	// 头像保存目录
-	StaticResource = "static/resource"
+	StaticResource = "D:\\static"
+	// 邮箱地址,授权码，地址
+	EmailFrom     = "823654832@qq.com"
+	EmailPassword = "tilalchlkcjbbfif"
+	EmailHost     = "smtp.qq.com"
+	EmailPort     = "587"
 )
 
 type UserClaim struct {

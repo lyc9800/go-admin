@@ -30,6 +30,10 @@ func App() *gin.Engine {
 	loginAuth.GET("/user/detail/:id", service.GetUserDetail)
 	// 修改用户信息
 	loginAuth.PUT("/user", service.UpdateUser)
+	// 更新用户信息
+	loginAuth.PUT("/user/info", service.UpdateUserInfoApi)
+	// 发送邮件
+	loginAuth.GET("/user/sendemail", service.SendEmail)
 	// 删除用户
 	loginAuth.DELETE("/user/:id", service.DeleteUser)
 	/* 用户管理 ----end ---- */

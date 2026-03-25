@@ -44,6 +44,8 @@ type AddUserRequest struct {
 	Email    string `json:"email"`
 	Remarks  string `json:"remarks"`
 	RoleId   uint   `json:"roleId"`
+	Avatar   string `json:"avatar"`
+	Sex      string `json:"sex"`
 }
 
 // 返回用户详细信息结构体

@@ -1,9 +1,14 @@
 package service
 
 import (
+	"fmt"
+	"math/rand"
 	"net/http"
+	"server/define"
 	"server/models"
+	"server/utils"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -182,5 +187,73 @@ func DeleteUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code": 200,
 		"msg":  "删除数据成功",
+	})
+}
+
+// 修改用户信息
+func UpdateUserInfoApi(c *gin.Context) {
+	// 获取用户登陆信息
+	userClaim := c.MustGet("UserClaim").(*define.UserClaim)
+	fmt.Println(userClaim)
+	in := new(UpdateUserRequest)
+	err := c.ShouldBindJSON(in)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": -1,
+			"msg":  "参数错误",
+		})
+		return
+	}
+	err = models.DB.Debug().Model(new(models.SysUser)).Where("id=?", userClaim.Id).Updates(map[string]any{
+		"sex":    in.Sex,
+		"avatar": in.Avatar,
+	}).Error
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": -1,
+			"msg":  "更新失败",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code": 200,
+		"msg":  "更新数据成功",
+	})
+	return
+}
+
+// 发送邮箱验证码
+func SendEmail(c *gin.Context) {
+	// 安全获取 userClaim
+	claimVal, exists := c.Get("userClaim")
+	if !exists {
+		c.JSON(http.StatusOK, gin.H{
+			"code": -1,
+			"msg":  "未获取到用户信息，请重新登录",
+		})
+		return
+	}
+	userClaim := claimVal.(*define.UserClaim)
+	// userClaim := c.MustGet("userClaim").(*define.UserClaim)
+	sysUser, err := models.GetUserDetail(userClaim.Id)
+	toEmail := c.Query("email")
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"code": -1,
+			"msg":  "发送邮件失败",
+		})
+		return
+	}
+	// 生成随机验证码
+	rnd := rand.New(rand.NewSource(time.Now().UnixNano()))
+	vCode := fmt.Sprintf("%06v", rnd.Int31n(1000000))
+	content := fmt.Sprintf("【系统管理】验证码：%s，请勿泄露给其他人。", vCode)
+	if toEmail == "" {
+		toEmail = sysUser.Email
+	}
+	go utils.SendEmail(toEmail, "修改邮箱验证码", content)
+	c.JSON(http.StatusOK, gin.H{
+		"code": 200,
+		"msg":  "发送成功,请查收邮件",
 	})
 }
