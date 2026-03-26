@@ -5,6 +5,8 @@ import (
 	"server/middleware"
 	"server/service"
 
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 )
 
@@ -13,6 +15,15 @@ func App() *gin.Engine {
 	r := gin.Default()
 	// 添加跨域中间件
 	r.Use(middleware.Cors())
+	// 添加session中间件
+	store := cookie.NewStore([]byte("secret"))
+	store.Options(sessions.Options{
+		Path:     "/",
+		Secure:   true,
+		SameSite: 4,
+		MaxAge:   3600,
+	})
+	r.Use(sessions.Sessions("admin-session", store))
 	// 静态文件路由
 	r.Static("/uploadFile", define.StaticResource)
 	// 根据用户名和密码登录的路由
@@ -34,6 +45,9 @@ func App() *gin.Engine {
 	loginAuth.PUT("/user/info", service.UpdateUserInfoApi)
 	// 发送邮件
 	loginAuth.GET("/user/sendemail", service.SendEmail)
+	// 校验验证码
+	loginAuth.GET("/user/verifycode", service.VerifyCode)
+	loginAuth.PUT("/user/changeemail", service.ChangeEmail)
 	// 删除用户
 	loginAuth.DELETE("/user/:id", service.DeleteUser)
 	/* 用户管理 ----end ---- */

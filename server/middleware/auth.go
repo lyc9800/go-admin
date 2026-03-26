@@ -54,7 +54,7 @@ func LoginAuthCheck() gin.HandlerFunc {
 			userClaim.IsAdmin = false
 		}
 
-		c.Set("UserClaim", userClaim)
+		c.Set("userClaim", userClaim)
 		c.Next()
 	}
 }

@@ -63,3 +63,24 @@ export function sendEmailApi(email:string){
         }
     })
 }
+
+export function verifyCode(email:string, code:string){
+    return request({
+        url: 'user/verifycode',
+        method: 'get',
+        params: {
+            email: email,
+            code: code
+        }
+    })
+}
+export function changeUserEmail(email: string, code: string) {
+  return request({
+    url: 'user/changeemail',  // 假设后端接口是这个
+    method: 'put',  // 或 'post'，根据后端设计
+    data: {  // 如果是PUT/POST请求，通常用data
+      email: email,
+      code: code
+    }
+  })
+}

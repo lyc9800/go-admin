@@ -144,3 +144,60 @@ type UpdateMenuRequest struct {
 	ID uint `json:"id"`
 	AddMenuRequest
 }
+
+// 验证验证码请求参数
+type VerifyCodeRequest struct {
+	Email string `json:"email" form:"email" binding:"required,email"`     // 邮箱地址
+	Code  string `json:"code" form:"code" binding:"required,min=6,max=6"` // 6位验证码
+}
+
+// 验证验证码返回结果
+type VerifyCodeReply struct {
+	Valid   bool   `json:"valid"`   // 验证是否成功
+	Email   string `json:"email"`   // 验证的邮箱
+	Message string `json:"message"` // 返回消息
+}
+
+// 更换绑定邮箱请求参数
+type ChangeEmailRequest struct {
+	Email string `json:"email" binding:"required,email"`      // 新邮箱地址
+	Code  string `json:"code" binding:"required,min=6,max=6"` // 6位验证码
+}
+
+// 更换邮箱返回结果
+type ChangeEmailReply struct {
+	Success  bool   `json:"success"`             // 是否成功
+	Message  string `json:"message"`             // 返回消息
+	OldEmail string `json:"old_email,omitempty"` // 旧邮箱
+	NewEmail string `json:"new_email,omitempty"` // 新邮箱
+}
+
+// 发送验证码请求参数
+type SendEmailRequest struct {
+	Email string `json:"email" form:"email" binding:"required,email"` // 邮箱地址
+}
+
+// 发送验证码返回结果
+type SendEmailReply struct {
+	Success bool   `json:"success"` // 是否成功
+	Message string `json:"message"` // 返回消息
+	Email   string `json:"email"`   // 发送到的邮箱
+}
+
+// 更新用户信息请求（包含邮箱）
+type UpdateUserInfoRequest struct {
+	Username string `json:"username,omitempty"` // 用户名
+	Phone    string `json:"phone,omitempty"`    // 手机号
+	Email    string `json:"email,omitempty"`    // 邮箱
+	Remarks  string `json:"remarks,omitempty"`  // 备注
+	Avatar   string `json:"avatar,omitempty"`   // 头像
+	Sex      string `json:"sex,omitempty"`      // 性别
+	Code     string `json:"code,omitempty"`     // 验证码（更换邮箱时需要）
+}
+
+// 更新用户信息返回
+type UpdateUserInfoReply struct {
+	Success bool             `json:"success"`        // 是否成功
+	Message string           `json:"message"`        // 返回消息
+	User    GetUserListReply `json:"user,omitempty"` // 更新后的用户信息
+}

@@ -10,7 +10,9 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 func GetUserList(c *gin.Context) {
@@ -224,6 +226,8 @@ func UpdateUserInfoApi(c *gin.Context) {
 
 // 发送邮箱验证码
 func SendEmail(c *gin.Context) {
+	// 保存邮件验证码
+	session := sessions.Default(c)
 	// 安全获取 userClaim
 	claimVal, exists := c.Get("userClaim")
 	if !exists {
@@ -252,8 +256,172 @@ func SendEmail(c *gin.Context) {
 		toEmail = sysUser.Email
 	}
 	go utils.SendEmail(toEmail, "修改邮箱验证码", content)
+	session.Set("VCode", vCode)
+	err = session.Save()
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"code": -1,
+			"msg":  "保存验证码失败",
+		})
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{
 		"code": 200,
 		"msg":  "发送成功,请查收邮件",
+	})
+}
+
+// 校验验证码
+func VerifyCode(c *gin.Context) {
+	session := sessions.Default(c)
+	VCode := session.Get("VCode")
+	code := c.Query("code")
+	if VCode != code {
+		c.JSON(http.StatusOK, gin.H{
+			"code": -1,
+			"msg":  "验证码错误",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code": 200,
+		"msg":  "校验通过",
+	})
+}
+
+// 更换绑定邮箱
+func ChangeEmail(c *gin.Context) {
+	// 1. 解析请求参数
+	var req ChangeEmailRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": -1,
+			"msg":  "参数错误: " + err.Error(),
+		})
+		return
+	}
+
+	// 2. 从session中获取用户ID
+	session := sessions.Default(c)
+	userClaimInterface := c.MustGet("userClaim")
+	if userClaimInterface == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"code": -1,
+			"msg":  "用户未登录",
+		})
+		return
+	}
+
+	userClaim := userClaimInterface.(*define.UserClaim)
+	userId := userClaim.Id
+
+	// 3. 查询当前用户
+	var user models.SysUser
+	err := models.DB.Where("id = ?", userId).First(&user).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, gin.H{
+				"code": -1,
+				"msg":  "用户不存在",
+			})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"code": -1,
+				"msg":  "数据库查询失败",
+			})
+		}
+		return
+	}
+
+	// 4. 检查新邮箱是否与当前邮箱相同
+	if user.Email == req.Email {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": -1,
+			"msg":  "新邮箱不能与当前绑定邮箱相同",
+		})
+		return
+	}
+
+	// 5. 检查新邮箱是否已被其他用户使用
+	var count int64
+	err = models.DB.Model(&models.SysUser{}).Where("email = ? AND id != ?", req.Email, userId).Count(&count).Error
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code": -1,
+			"msg":  "数据库查询失败",
+		})
+		return
+	}
+	if count > 0 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": -1,
+			"msg":  "该邮箱已被其他用户绑定",
+		})
+		return
+	}
+
+	// 6. 验证验证码（从session中获取验证码）
+	sessionVCode := session.Get("VCode")
+	if sessionVCode == nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": -1,
+			"msg":  "验证码已过期，请重新获取",
+		})
+		return
+	}
+
+	if sessionVCode != req.Code {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": -1,
+			"msg":  "验证码错误",
+		})
+		return
+	}
+
+	// 7. 获取用户发送验证码的邮箱
+	sentToEmail := session.Get("sentToEmail")
+	targetEmail := ""
+	if sentToEmail != nil {
+		targetEmail = sentToEmail.(string)
+	}
+
+	// 验证邮箱是否匹配
+	if targetEmail != "" && targetEmail != req.Email {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": -1,
+			"msg":  "验证码与邮箱不匹配",
+		})
+		return
+	}
+
+	// 8. 保存旧邮箱
+	oldEmail := user.Email
+
+	// 9. 更新数据库
+	err = models.DB.Model(&user).Update("email", req.Email).Error
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code": -1,
+			"msg":  "邮箱更新失败: " + err.Error(),
+		})
+		return
+	}
+
+	// 10. 清除session中的验证码
+	session.Delete("VCode")
+	session.Delete("sentToEmail")
+	session.Save()
+
+	// 11. 可选：发送通知邮件（异步）
+	// go sendChangeEmailNotification(oldEmail, req.Email)
+
+	// 12. 返回成功响应
+	c.JSON(http.StatusOK, gin.H{
+		"code": 200,
+		"msg":  "邮箱更换成功",
+		"result": gin.H{
+			"old_email": oldEmail,
+			"new_email": req.Email,
+		},
 	})
 }
