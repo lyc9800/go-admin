@@ -56,7 +56,7 @@
                             :content="scope.row.avatar" placement="top"
                             effect="light">
                             <img :src="url+'uploadFile/'+scope.row.avatar"
-                                style="width: 64px;height: 40px;">
+                                style="width: 64px;height: 40px;object-fit: contain;">
                         </el-tooltip>
                         <el-tag type="warning" v-else>未上传</el-tag>
                     </template>
@@ -179,6 +179,7 @@ const loadData=async (state)=>{
     state.total=data.result.count
     state.loading=false
 }
+const url=import.meta.env.VITE_BASE_URL
 // 挂载后加载列表数据
 onMounted(()=>{
     loadData(state)

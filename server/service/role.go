@@ -56,7 +56,7 @@ func AddRole(c *gin.Context) {
 	}
 	log.Printf("收到角色菜单 ID: %v, 长度: %d", in.MenuId, len(in.MenuId))
 	var cnt int64
-	err = models.DB.Model(&models.SysRole{}).Where("name = ?", in.Name).Count(&cnt).Error
+	err = models.DB.Model(&models.SysRole{}).Where("role_name = ?", in.RoleName).Count(&cnt).Error
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"code": -1,
@@ -79,10 +79,10 @@ func AddRole(c *gin.Context) {
 	}
 
 	rb := &models.SysRole{
-		IsAdmin: in.IsAdmin,
-		Name:    in.Name,
-		Remarks: in.Remarks,
-		Sort:    in.Sort,
+		IsAdmin:  in.IsAdmin,
+		RoleName: in.RoleName,
+		Remarks:  in.Remarks,
+		Sort:     in.Sort,
 	}
 	err = models.DB.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Create(rb).Error; err != nil {
@@ -133,7 +133,7 @@ func GetRoleDetail(c *gin.Context) {
 		return
 	}
 	data.ID = sysRole.ID
-	data.Name = sysRole.Name
+	data.RoleName = sysRole.RoleName
 	data.Remarks = sysRole.Remarks
 	data.Sort = sysRole.Sort
 	data.IsAdmin = sysRole.IsAdmin
@@ -168,7 +168,7 @@ func UpdateRole(c *gin.Context) {
 	}
 
 	var cnt int64
-	err = models.DB.Model(&models.SysRole{}).Where("id != ? and name=?", in.ID, in.Name).Count(&cnt).Error
+	err = models.DB.Model(&models.SysRole{}).Where("id != ? and role_name=?", in.ID, in.RoleName).Count(&cnt).Error
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"code": -1,
@@ -186,10 +186,10 @@ func UpdateRole(c *gin.Context) {
 
 	err = models.DB.Transaction(func(tx *gorm.DB) error {
 		err = models.DB.Model(&models.SysRole{}).Where("id=?", in.ID).Updates(map[string]any{
-			"name":     in.Name,
-			"remarks":  in.Remarks,
-			"sort":     in.Sort,
-			"is_admin": in.IsAdmin,
+			"role_name": in.RoleName,
+			"remarks":   in.Remarks,
+			"sort":      in.Sort,
+			"is_admin":  in.IsAdmin,
 		}).Error
 		if err != nil {
 			return err

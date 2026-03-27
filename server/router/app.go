@@ -48,6 +48,8 @@ func App() *gin.Engine {
 	// 校验验证码
 	loginAuth.GET("/user/verifycode", service.VerifyCode)
 	loginAuth.PUT("/user/changeemail", service.ChangeEmail)
+	// 修改密码 - 在这里添加
+	loginAuth.PUT("/user/change-password", service.ChangePassword)
 	// 删除用户
 	loginAuth.DELETE("/user/:id", service.DeleteUser)
 	/* 用户管理 ----end ---- */

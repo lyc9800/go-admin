@@ -84,3 +84,11 @@ export function changeUserEmail(email: string, code: string) {
     }
   })
 }
+// 修改密码
+export function updatePasswordApi(data: { oldPassword: string, newPassword: string }) {
+  return request({
+    url: '/user/change-password',
+    method: 'put',
+    data
+  })
+}

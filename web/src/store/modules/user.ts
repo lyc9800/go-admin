@@ -13,6 +13,7 @@ export const useUserStore = defineStore("userStore", {
         userName: '',
         sex: '',
         email: '',
+        role_name: '',
       },
       // 角色
       roles: []

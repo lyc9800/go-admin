@@ -43,7 +43,7 @@
             <el-table-column label="序号" width="100" type="index" :index="Nindex"/>
             <el-table-column label="角色名称">
                 <template #default="scope">
-                    <span>{{ scope.row.name }}</span>
+                    <span>{{ scope.row.role_name }}</span>
                 </template>
             </el-table-column>
 

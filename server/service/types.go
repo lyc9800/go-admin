@@ -1,5 +1,7 @@
 package service
 
+import "server/models"
+
 // 接受登陆参数的结构体
 type LoginPassWordRequest struct {
 	UserName string `json:"userName"` // 登陆用户名
@@ -34,6 +36,7 @@ type GetUserListReply struct {
 	Remarks   string `json:"remarks"`
 	CreatedAt string `json:"created_at"`
 	UpdatedAt string `json:"updated_at"`
+	RoleName  string `json:"role_name"`
 }
 
 // 接收添加管理员表单数据的结构体
@@ -46,6 +49,7 @@ type AddUserRequest struct {
 	RoleId   uint   `json:"roleId"`
 	Avatar   string `json:"avatar"`
 	Sex      string `json:"sex"`
+	RoleName string `json:"role_name"`
 }
 
 // 返回用户详细信息结构体
@@ -68,7 +72,7 @@ type GetRoleListRequest struct {
 // 角色列表返回
 type GetRoleListReply struct {
 	ID        uint   `json:"id"`
-	Name      string `json:"name"`
+	RoleName  string `json:"role_name"`
 	CreatedAt string `json:"created_at"`
 	UpdatedAt string `json:"updated_at"`
 	Sort      int    `json:"sort"`
@@ -78,17 +82,17 @@ type GetRoleListReply struct {
 
 // 返回角色数据的结构体
 type AllRoleListReply struct {
-	ID   uint   `json:"id"`
-	Name string `json:"name"`
+	ID       uint   `json:"id"`
+	RoleName string `json:"role_name"`
 }
 
 // 添加角色参数结构体
 type AddRoleRequest struct {
-	Name    string `json:"name"`
-	Sort    int64  `json:"sort"`
-	IsAdmin int8   `json:"is_admin"`
-	Remarks string `json:"remarks"`
-	MenuId  []uint `json:"menuId"`
+	RoleName string `json:"role_name"`
+	Sort     int64  `json:"sort"`
+	IsAdmin  int8   `json:"is_admin"`
+	Remarks  string `json:"remarks"`
+	MenuId   []uint `json:"menuId"`
 }
 
 // 返回角色信息结构体
@@ -200,4 +204,23 @@ type UpdateUserInfoReply struct {
 	Success bool             `json:"success"`        // 是否成功
 	Message string           `json:"message"`        // 返回消息
 	User    GetUserListReply `json:"user,omitempty"` // 更新后的用户信息
+}
+
+// 修改密码请求参数
+type ChangePasswordRequest struct {
+	OldPassword string `json:"oldPassword" binding:"required,min=6,max=20"` // 当前密码
+	NewPassword string `json:"newPassword" binding:"required,min=6,max=20"` // 新密码
+}
+
+// 修改密码返回结果
+type ChangePasswordReply struct {
+	Success     bool   `json:"success"`       // 是否成功
+	Message     string `json:"message"`       // 返回消息
+	NeedReLogin bool   `json:"need_re_login"` // 是否需要重新登录
+}
+
+// 用户信息（包含角色）
+type UserWithRole struct {
+	models.SysUser
+	RoleName string `gorm:"column:role_name" json:"role_name"`
 }

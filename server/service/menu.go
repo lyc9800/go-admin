@@ -18,7 +18,7 @@ func GetMenuList(c *gin.Context) {
 // 获取菜单列表数据
 func Menus(c *gin.Context) {
 	// 获取登陆用户信息
-	UserClaim := c.MustGet("UserClaim").(*define.UserClaim)
+	UserClaim := c.MustGet("userClaim").(*define.UserClaim)
 
 	data := make([]*MenuReplay, 0)
 	allMenus := make([]*AllMenu, 0)

@@ -33,6 +33,7 @@ func LoginPassword(c *gin.Context) {
 			return
 		}
 	}
+
 	// 生成token
 	token, err := helper.GenerateToken(sysUser.ID, sysUser.RoleId, sysUser.UserName, define.TokenExpire)
 	if err != nil {

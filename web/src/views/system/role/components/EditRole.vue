@@ -2,8 +2,8 @@
     <el-form ref="ruleFormRef" :rules="rules"  :model="formRole" label-width="100px">
         <el-row>
             <el-col :span="8">
-                <el-form-item label="角色名称" prop="name">
-                    <el-input v-model="formRole.name" placeholder="请输入角色名称"/>
+                <el-form-item label="角色名称" prop="role_name">
+                    <el-input v-model="formRole.role_name" placeholder="请输入角色名称"/>
                 </el-form-item>
             </el-col>
 
@@ -63,7 +63,7 @@ const roleInfo = props.roleInfo
 const subLoading = ref(false)
 const formRole = reactive({
     id:'',
-    name: '',
+    role_name: '',
     sort: 0,
     is_admin: 0,
     remarks: '',

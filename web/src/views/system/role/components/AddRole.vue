@@ -2,8 +2,8 @@
     <el-form ref="ruleFormRef" :rules="rules" :model="formRole" label-width="100px">
         <el-row>
             <el-col :span="8">
-                <el-form-item label="角色名称" prop="name">
-                    <el-input v-model="formRole.name" placeholder="请输入角色名称"/>
+                <el-form-item label="角色名称" prop="role_name">
+                    <el-input v-model="formRole.role_name" placeholder="请输入角色名称"/>
                 </el-form-item>
             </el-col>
 
@@ -59,14 +59,14 @@ import { getMenuListApi } from "@/api/system/menu/menu"
 // 表单实例对象
 const ruleFormRef = ref<FormInstance>()
 const rules = reactive<FormRules>({
-    name: [{ required: true, message: '请输入角色名称', trigger: 'blur' }],
+    role_name: [{ required: true, message: '请输入角色名称', trigger: 'blur' }],
     sort: [{ required: true, message: '请输入角色排序', trigger: 'blur' }],
 })
 // 按钮状态
 const subLoading = ref(false)
 // 表单数据
 const formRole = reactive({
-    name: '',
+    role_name: '',
     sort: 0,
     is_admin: 0,
     remarks: '',
