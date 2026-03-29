@@ -83,9 +83,12 @@ console.log('userInfo 完整数据:', userInfo)
 console.log('role_name:', userInfo?.role_name)
 // 退出系统
 const exit = () => {
-  window.localStorage.removeItem("userStore")
-  window.localStorage.removeItem("menuState")
-  router.push('/login')
+  // 清除所有存储
+  localStorage.clear()
+  sessionStorage.clear()
+  
+  // 使用location.href强制跳转并刷新
+  window.location.href = '/login'
 }
 
 // 处理退出登录（带确认框）

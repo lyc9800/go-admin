@@ -24,4 +24,12 @@ export default defineConfig({
       '@':path.resolve('./src')  // 使用@替代src
     }
   },
+  server: {
+    host: '0.0.0.0',  // 监听所有网络接口
+    port: 5173,       // 端口号
+    open: true,       // 自动打开浏览器
+    // 使用局域网IP访问
+    // 或者指定特定IP
+    // host: '192.168.1.100',  // 替换为您的局域网IP
+  }
 })

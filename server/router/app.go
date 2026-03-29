@@ -15,6 +15,8 @@ func App() *gin.Engine {
 	r := gin.Default()
 	// 添加跨域中间件
 	r.Use(middleware.Cors())
+	// 添加日志中间件
+	r.Use(middleware.SimpleLogger())
 	// 添加session中间件
 	store := cookie.NewStore([]byte("secret"))
 	store.Options(sessions.Options{
@@ -79,5 +81,7 @@ func App() *gin.Engine {
 	// 删除菜单
 	loginAuth.DELETE("/menu/:id", service.DelMenuApi)
 	/* 菜单管理 ----end ---- */
+	/* 日志管理 ----start ---- */
+	loginAuth.GET("/log", service.GetLogList)
 	return r
 }

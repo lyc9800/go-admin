@@ -3,6 +3,7 @@ package models
 import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/schema"
 )
 
 // 创建全局DB
@@ -16,12 +17,15 @@ func NewGormDB() {
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
 		// 禁用外键约束
 		DisableForeignKeyConstraintWhenMigrating: true,
+		NamingStrategy: schema.NamingStrategy{
+			SingularTable: true, // 使用单数表名
+		},
 	})
 	if err != nil {
 		panic(err)
 	}
 	// 自动建表
-	err = db.AutoMigrate(&SysUser{}, &SysRole{}, &SysMenu{}, &RoleMenu{})
+	err = db.AutoMigrate(&SysUser{}, &SysRole{}, &SysMenu{}, &RoleMenu{}, &SysLog{})
 	// 将连接返回的局部变量db赋值给全局DB变量，方便其他package引用
 	DB = db
 }

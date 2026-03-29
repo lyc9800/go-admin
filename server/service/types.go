@@ -224,3 +224,43 @@ type UserWithRole struct {
 	models.SysUser
 	RoleName string `gorm:"column:role_name" json:"role_name"`
 }
+
+// 获取IP归属地
+type IpInfo struct {
+	// 国家
+	Country string `json:"country"`
+	// 区域
+	Region string `json:"region"`
+	// 省份
+	Province string `json:"province"`
+	// 城市
+	City string `json:"city"`
+	// 运营商
+	Isp string `json:"isp"`
+}
+
+// GetLogListReply 日志列表响应结构体
+type GetLogListReply struct {
+	ID           int64  `json:"id" db:"id"`                       // 日志ID
+	IP           string `json:"ip" db:"ip"`                       // IP地址
+	ClassMethod  string `json:"class_method" db:"class_method"`   // 类方法
+	HTTPMethod   string `json:"http_method" db:"http_method"`     // HTTP方法
+	RequestParam string `json:"request_param" db:"request_param"` // 请求参数
+	RequestURI   string `json:"request_uri" db:"request_uri"`     // 请求URI
+	Result       string `json:"result" db:"result"`               // 结果
+	StatusCode   int    `json:"status_code" db:"status_code"`     // 状态码
+	UseTime      int64  `json:"use_time" db:"use_time"`           // 用时(毫秒)
+	Country      string `json:"country" db:"country"`             // 国家
+	Region       string `json:"region" db:"region"`               // 地区
+	Province     string `json:"province" db:"province"`           // 省份
+	City         string `json:"city" db:"city"`                   // 城市
+	ISP          string `json:"isp" db:"isp"`                     // 运营商
+	CreatedAt    string `json:"created_at" db:"created_at"`       // 创建时间
+	Browser      string `json:"browser" db:"browser"`             // 浏览器
+}
+
+// GetLogListRequest 获取日志列表请求参数
+type GetLogListRequest struct {
+	*QueryRequest    // 嵌入 QueryRequest 获取分页参数
+	*GetLogListReply // 嵌入 GetLogListReply 获取查询字段
+}

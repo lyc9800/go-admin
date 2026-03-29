@@ -100,10 +100,8 @@ func GetUserDetail(c *gin.Context) {
 		})
 		return
 	}
+
 	uId, err := strconv.Atoi(id)
-	data := &GetUserDetailReply{}
-	// 获取用户信息
-	sysUser, err := models.GetUserDetail(uint(uId))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"code": -1,
@@ -111,14 +109,68 @@ func GetUserDetail(c *gin.Context) {
 		})
 		return
 	}
-	data.ID = sysUser.ID
-	data.Remarks = sysUser.Remarks
-	data.Phone = sysUser.Phone
-	data.Username = sysUser.UserName
-	data.Email = sysUser.Email
-	data.RoleId = sysUser.RoleId
-	data.Password = sysUser.Password
-	data.RoleName = sysUser.RoleName
+
+	data := &GetUserDetailReply{}
+
+	// 使用 type.go 中定义的 UserWithRole 结构体
+	userWithRole := &UserWithRole{}
+
+	// 先执行原生SQL看看能否查到数据
+	var testResult struct {
+		ID       uint
+		UserName string
+		RoleId   uint
+		RoleName string
+	}
+
+	// 调试：直接执行SQL查看结果
+	err = models.DB.Raw(`
+        SELECT sys_user.id, sys_user.username, sys_user.role_id, sys_role.role_name 
+        FROM sys_user 
+        LEFT JOIN sys_role ON sys_user.role_id = sys_role.id 
+        WHERE sys_user.id = ?
+    `, uId).Scan(&testResult).Error
+
+	if err != nil {
+		fmt.Printf("调试查询失败: %v\n", err)
+	} else {
+		fmt.Printf("调试查询结果: ID=%d, UserName=%s, RoleId=%d, RoleName=%s\n",
+			testResult.ID, testResult.UserName, testResult.RoleId, testResult.RoleName)
+	}
+
+	// 原有的查询
+	err = models.DB.Table("sys_user").
+		Select("sys_user.*, sys_role.role_name").
+		Joins("left join sys_role on sys_user.role_id = sys_role.id").
+		Where("sys_user.id = ?", uId).
+		First(userWithRole).Error
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": -1,
+			"msg":  "获取用户信息失败",
+		})
+		return
+	}
+
+	// 打印查询结果
+	fmt.Printf("userWithRole.RoleName: '%s'\n", userWithRole.RoleName)
+	fmt.Printf("userWithRole.RoleId: %d\n", userWithRole.RoleId)
+	fmt.Printf("userWithRole.UserName: %s\n", userWithRole.UserName)
+
+	// 填充数据
+	data.ID = userWithRole.ID
+	data.Remarks = userWithRole.Remarks
+	data.Phone = userWithRole.Phone
+	data.Username = userWithRole.UserName
+	data.Email = userWithRole.Email
+	data.RoleId = userWithRole.RoleId
+	data.Password = userWithRole.Password
+	data.RoleName = userWithRole.RoleName
+
+	// 打印最终返回的数据
+	fmt.Printf("最终返回的 data.RoleName: '%s'\n", data.RoleName)
+
 	c.JSON(http.StatusOK, gin.H{
 		"code":   200,
 		"msg":    "获取数据成功",
@@ -196,7 +248,7 @@ func DeleteUser(c *gin.Context) {
 // 修改用户信息
 func UpdateUserInfoApi(c *gin.Context) {
 	// 获取用户登陆信息
-	userClaim := c.MustGet("UserClaim").(*define.UserClaim)
+	userClaim := c.MustGet("userClaim").(*define.UserClaim)
 	fmt.Println(userClaim)
 	in := new(UpdateUserRequest)
 	err := c.ShouldBindJSON(in)
@@ -584,25 +636,4 @@ func savePasswordChangeHistory(tx *gorm.DB, userId uint, newPassword string) err
 	// 用于检查用户是否重复使用旧密码
 
 	return nil
-}
-
-// 根据用户名和密码查询用户（包含角色信息）
-func GetUserWithRole(username, password string) (*UserWithRole, error) {
-	var result UserWithRole
-
-	// 使用原生SQL查询
-	err := DB.Raw(`
-        SELECT 
-            u.*,
-            r.name as role_name
-        FROM sys_user u
-        LEFT JOIN sys_role r ON u.role_id = r.id
-        WHERE u.user_name = ? AND u.password = ?
-    `, username, password).Scan(&result).Error
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &result, nil
 }
